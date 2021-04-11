@@ -1,5 +1,5 @@
 
-window.MSG = (
+export const msgClient = (
   function createMsgService(optionalOptions) {
     var getArgs = require('./lib/getargs')();
    
