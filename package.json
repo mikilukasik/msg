@@ -15,5 +15,13 @@
   "bugs": {
     "url": "https://github.com/mikilukasik/msg/issues"
   },
-  "homepage": "https://github.com/mikilukasik/msg#readme"
+  "homepage": "https://github.com/mikilukasik/msg#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "network": "^0.5.0",
+    "request": "^2.88.2",
+    "websocket": "^1.0.33"
+  }
 }
