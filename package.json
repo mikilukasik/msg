@@ -1,0 +1,19 @@
+{
+  "name": "msg",
+  "version": "0.0.1",
+  "description": "microservice communication helper",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikilukasik/msg.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mikilukasik/msg/issues"
+  },
+  "homepage": "https://github.com/mikilukasik/msg#readme"
+}
