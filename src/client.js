@@ -1,7 +1,7 @@
 
 window.MSG = (
   function createMsgService(optionalOptions) {
-    var getArgs = require('./getargs')();
+    var getArgs = require('./lib/getargs')();
    
     var msgOptions = {
       mySocketRules: {},
@@ -12,9 +12,9 @@ window.MSG = (
       wsRoutes: {},
     };
 
-    // msgOptions.createRule = require('./createRule')(msgOptions); 
-    msgOptions.createSocketRule = require('./createSocketRule')(msgOptions);
-    // msgOptions.toGtw = require('./toGtw')(msgOptions); 
+    // msgOptions.createRule = require('./lib/createRule')(msgOptions); 
+    msgOptions.createSocketRule = require('./lib/createSocketRule')(msgOptions);
+    // msgOptions.toGtw = require('./lib/toGtw')(msgOptions); 
 
     optionalOptions = optionalOptions || {};
     if (optionalOptions && typeof optionalOptions === 'object') Object.keys(optionalOptions).forEach(function (key) {
@@ -26,7 +26,7 @@ window.MSG = (
     console.log('MSG Client starting...');
 
     var msgClient = {
-      cookies: require('./cookies'),
+      cookies: require('./lib/cookies'),
       sharedWorker(scriptLocation){
         console.log('Starting MSG Shared Worker from ' + scriptLocation);
         return new SharedWorker(scriptLocation);
