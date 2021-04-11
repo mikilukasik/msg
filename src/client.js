@@ -1,6 +1,9 @@
-
 export const msgClient = (
   function createMsgService(optionalOptions) {
+    // the below hack is needed do the client bundle can be built in consuming apps.
+    // TODO: there must be a better way
+    if (typeof window === 'undefined') return { ws: () => ({ do: async() => {} }) };
+
     var getArgs = require('./lib/getargs')();
    
     var msgOptions = {
