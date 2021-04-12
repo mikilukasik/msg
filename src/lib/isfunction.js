@@ -1,4 +1,4 @@
 module.exports = function isFunction(functionToCheck) {
   var getType = {};
-  return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+  return functionToCheck && ['[object Function]', '[object AsyncFunction]'].includes(getType.toString.call(functionToCheck));
 };
