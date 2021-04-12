@@ -6,6 +6,16 @@ module.exports = function removeRulesCreator(msgOptions){
   function removeRules (confobj) {
     if(!confobj) confobj = {};
 
+    // the below removes the disconnected sockets from the rule's usingWss array
+    Object.keys(msgOptions.publicSocketRoutes).forEach(route => {
+      let uwssI = msgOptions.publicSocketRoutes[route].usingWss.length;
+      while (uwssI--) {
+        if (msgOptions.publicSocketRoutes[route].usingWss[uwssI].readyState > 1) {
+          msgOptions.publicSocketRoutes[route].usingWss.splice(uwssI, 1);
+        }
+      }
+    });
+
     if(confobj.ownerMatch){
       var i = msgOptions.convertedDirectRules.length;
       while (i--) {

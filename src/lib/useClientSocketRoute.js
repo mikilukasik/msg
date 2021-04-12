@@ -189,6 +189,22 @@ module.exports = function slaveFunctionsCreator(msgOptions){
 
     }
     msgOptions.publicSocketRoutes[route].usingWss.push(usingWs);
+
+    // let the service know about already open connections
+    Object.keys(msgOptions.publicSocketRoutes[route].connectedKeys).forEach(key => {
+      try{
+        usingWs.send(JSON.stringify({
+          command: 'socketOpen',
+          route,
+          key,
+          clientSocketRoute: route,
+          clientSocketKey: key,
+          cookie: msgOptions.publicSocketRoutes[route].connectedKeys[key].req.headers.cookie
+        }));
+      } catch (e) {
+        log({m: e.message}, e);
+      }
+    })
   }
 
   return useClientSocketRoute;
