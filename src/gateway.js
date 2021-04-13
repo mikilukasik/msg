@@ -108,7 +108,7 @@ module.exports = function createMsgGateway (options){
   msgOptions.toGtw = require('./lib/mgToGtw')(msgOptions);
   msgOptions.removeRules = require('./lib/removeRules')(msgOptions);
   msgOptions.getIps = require('./lib/getIps')(msgOptions);
-  msgOptions.start = require('./lib/mgStart')(msgOptions);
+  msgOptions._start = require('./lib/mgStart')(msgOptions);
   msgOptions.mw = require('./lib/mgMw')(msgOptions);
   msgOptions.socketsRoute = require('./lib/mgSocketsRoute')(msgOptions);
   msgOptions.slaveSocketsRoute = require('./lib/mgSlaveSocketsRoute')(msgOptions);
@@ -133,12 +133,12 @@ module.exports = function createMsgGateway (options){
     log('Serving dump file on /dumps/' + filename);
   };
 
-  msgOptions.getIps('private, public, gateway', {maxTries: 5, optional: 'gateway', ip: msgOptions.ip})
+  msgOptions.obj.start = () => msgOptions.getIps('private, public, gateway', {maxTries: 5, optional: 'gateway', ip: msgOptions.ip})
     .then(
       function(ips){
         log('ips: ', ips);
         msgOptions.gotIp = true;
-        msgOptions.start();
+        return msgOptions._start();
       },
       function(err){ throw err; }
     ).then(

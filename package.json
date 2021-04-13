@@ -4,9 +4,10 @@
   "description": "microservice communication helper",
   "main": "index.js",
   "scripts": {
-    "test": "npm test",
+    "test": "npm run test:integration",
     "build-dev": "webpack --mode=development",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production",
+    "test:integration": "npx mocha --require esm test/integration"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,9 @@
     "websocket": "^1.0.33"
   },
   "devDependencies": {
+    "esm": "^3.2.25",
+    "expect": "^26.6.2",
+    "mocha": "^8.3.2",
     "webpack": "^5.31.2",
     "webpack-cli": "^4.6.0"
   }
