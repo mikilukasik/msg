@@ -160,8 +160,10 @@ export const msgClient = (
             console.error(message);
             msgOptions.waitingHandlersByConvId[message.conversationId].errorHandler(message.data);
           },
+          data: (message) => {
+            msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
+          },
           do: function (message) {
-            // console.log({msgOptions, message}, '#############')
             var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
             var newArgObj = getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
             thisHandler(newArgObj, {
@@ -208,6 +210,7 @@ export const msgClient = (
           if (argObj.cb) {
 
             var comms = {
+              // TODO: this comms object needs data function, and a lot more. this is very weak.....
               onData: function (onDataCb) {
                 handlers.dataHandler = onDataCb;
               }
