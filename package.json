@@ -28,6 +28,7 @@
     "websocket": "^1.0.33"
   },
   "devDependencies": {
+    "babel-preset-env": "^1.7.0",
     "esm": "^3.2.25",
     "expect": "^26.6.2",
     "mocha": "^8.3.2",

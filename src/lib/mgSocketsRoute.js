@@ -1,5 +1,98 @@
 var toStr = require('./toStr');
 
+const handleDo = ({ msgOptions, message, ws, key }) => {
+  const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + Math.random() * Math.random();
+  msgOptions.conversations[newConversationId] = {
+    startedBy: message.owner,
+    argObj: message.argObj,
+    conversationId: newConversationId,
+    ws,
+    type: 'do',
+  };
+  if (ws) ws.send(JSON.stringify({
+    command: 'doStarted',
+    conversationId: newConversationId,
+    tempConversationId: message.tempConversationId
+  }));
+
+  if (msgOptions.mySocketRules[message.argObj.cmd]) {
+    // log('gateway received do cmd ' + message.argObj.cmd + ' from ' + message.owner);
+
+    var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
+    var newArgObj = msgOptions.getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
+
+    thisHandler(newArgObj, {
+      key: key,
+      serviceName: message.serviceName,
+      serviceLongName: message.serviceLongName,
+      owner: message.owner,
+      ws: ws,
+
+      data: function(data) {
+        if (ws) ws.send(toStr({
+          command: 'data',
+          conversationId: newConversationId,
+          data: data,
+          owner: msgOptions.serviceLongName,
+          serviceName: msgOptions.serviceName,
+          serviceLongName: msgOptions.serviceLongName,
+        }));
+      },
+
+      send: function(data) {
+        if (ws) ws.send(JSON.stringify({
+          command: 'answer',
+          conversationId: newConversationId,
+          data: data,
+          owner: msgOptions.serviceLongName,
+          serviceName: msgOptions.serviceName,
+          serviceLongName: msgOptions.serviceLongName,
+        }));
+      },
+
+      error: function(data) {
+        if (ws) ws.send(msgOptions.stringify({
+          command: 'error',
+          conversationId: newConversationId,
+          data: data,
+          owner: msgOptions.serviceLongName,
+          serviceName: msgOptions.serviceName,
+          serviceLongName: msgOptions.serviceLongName,
+        }));
+      },
+    });
+
+    return;
+  }
+
+  try {
+    (msgOptions.getSocketRule(message.argObj.cmd) ||
+      {
+        ws: {
+          send: (jsStr) => {
+            const message2 = 'ERROR: Unknown command from ' + message.owner + ': ' + (jsStr);
+            log(message2);
+            throw new Error(message2);
+          }
+        }
+      }).ws.send(JSON.stringify({
+        command: 'do',
+        argObj: message.argObj,
+        conversationId: newConversationId
+      }));
+  } catch (e) {
+    console.log(e)
+    if (ws) ws.send(toStr({
+      command: 'error',
+      conversationId: newConversationId,
+      error: e,
+      message: e.message,
+      stack: e.stack,
+      request: message
+    }));
+  }
+}
+
 module.exports = function mgSocketRouteCreator(msgOptions) {
   var log = (msgOptions || {}).log || console.log;
 
@@ -49,100 +142,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         break;
 
       case 'do':
-        var newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + Math.random() * Math.random();
-
-        msgOptions.conversations[newConversationId] = {
-          startedBy: message.owner,
-          argObj: message.argObj,
-          conversationId: newConversationId,
-          ws,
-          type: 'do',
-        };
-        ws.send(JSON.stringify({
-          command: 'doStarted',
-          conversationId: newConversationId,
-          tempConversationId: message.tempConversationId
-        }));
-
-        if (msgOptions.mySocketRules[message.argObj.cmd]) {
-          // log('gateway received do cmd ' + message.argObj.cmd + ' from ' + message.owner);
-
-          var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
-          var newArgObj = msgOptions.getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
-
-          thisHandler(newArgObj, {
-            key: key,
-            serviceName: message.serviceName,
-            serviceLongName: message.serviceLongName,
-            owner: message.owner,
-            ws: ws,
-
-            data: function(data) {
-              ws.send(toStr({
-                command: 'data',
-                conversationId: newConversationId,
-                data: data,
-                owner: msgOptions.serviceLongName,
-                serviceName: msgOptions.serviceName,
-                serviceLongName: msgOptions.serviceLongName,
-              }));
-            },
-
-            send: function(data) {
-              ws.send(JSON.stringify({
-                command: 'answer',
-                conversationId: newConversationId,
-                data: data,
-                owner: msgOptions.serviceLongName,
-                serviceName: msgOptions.serviceName,
-                serviceLongName: msgOptions.serviceLongName,
-              }));
-            },
-
-            error: function(data) {
-
-              ws.send(msgOptions.stringify({
-                command: 'error',
-                conversationId: newConversationId,
-                data: data,
-                owner: msgOptions.serviceLongName,
-                serviceName: msgOptions.serviceName,
-                serviceLongName: msgOptions.serviceLongName,
-              }));
-            },
-          });
-
-          break;
-
-        }
-
-        try {
-          (msgOptions.getSocketRule(message.argObj.cmd) ||
-            {
-              ws: {
-                send: (jsStr) => {
-                  const message2 = 'ERROR: Unknown command from ' + message.owner + ': ' + (jsStr);
-                  log(message2);
-                  throw new Error(message2);
-                }
-              }
-            }).ws.send(JSON.stringify({
-              command: 'do',
-              argObj: message.argObj,
-              conversationId: newConversationId
-            }));
-        } catch (e) {
-            // ws.send(JSON.stringify({ERROR: e}))
-          ws.send(toStr({
-            command: 'error',
-            conversationId: newConversationId,
-            error: e,
-            message: e.message,
-            stack: e.stack,
-            request: message
-          }));
-        }
-
+        handleDo({ msgOptions, message, ws, key });
         break;
 
       case 'wsDo':
@@ -212,7 +212,23 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
 
       case 'answer': {
         var conv = msgOptions.conversations[message.conversationId];
-        if (!conv || conv.ws.readyState > 1) break;
+        if (!conv) {
+          // TODO: shouldn't we throw an error here?
+          break;
+        }
+        
+        if (!conv.ws) {
+          // this happens when we started the do on this gateway
+          conv.ownHandlers.resolve(message.data);
+          delete msgOptions.conversations[message.conversationId];
+          break;
+        }
+
+        if (conv.ws.readyState > 1) {
+          // TODO: shouldn't we throw an error here?
+          break;
+        }
+
         conv.ws.send(JSON.stringify({
           command: 'answer',
           data: message.data,
@@ -224,7 +240,24 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
 
       case 'data': {
         var convd = msgOptions.conversations[message.conversationId];
-        if (!convd || convd.ws.readyState > 1) break;
+        if (!convd) {
+          // TODO: throw error here maybe?
+          delete msgOptions.conversations[message.conversationId];
+          break;
+        }
+
+        if (!convd.ws) {
+          // this happens when we started the do on this gateway
+          convd.ownHandlers.dataHandler(message.data);
+          break;
+        }
+
+        if (convd.ws.readyState > 1) {
+          // TODO: throw error here maybe?
+          delete msgOptions.conversations[message.conversationId];
+          break;
+        }
+
 
         convd.ws.send(JSON.stringify({
           command: 'data',
@@ -236,10 +269,25 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         
       case 'error':
         var convE = msgOptions.conversations[message.conversationId];
-        if (!convE || convE.ws.readyState > 1) {
+        if (!convE) {
+          // TODO: throw error here maybe?
           delete msgOptions.conversations[message.conversationId];
           break;
         }
+
+        if (!convE.ws) {
+          // this happens when we started the do on this gateway
+          convE.ownHandlers.reject(message.data);
+          delete msgOptions.conversations[message.conversationId];
+          break;
+        }
+
+        if (convE.ws.readyState > 1) {
+          // TODO: throw error here maybe?
+          delete msgOptions.conversations[message.conversationId];
+          break;
+        }
+
         convE.ws.send(JSON.stringify({
           command: 'error',
           data: message.data,

@@ -11,6 +11,7 @@ module.exports = function doCreator(msgOptions){
     if(argObj.cb){
 
       var comms = {
+        // TODO: very poor comms object here
         onData: function (onDataCb) {
           handlers.dataHandler = onDataCb;
         }
@@ -19,11 +20,34 @@ module.exports = function doCreator(msgOptions){
     }
 
     return new Promise(function(res, rej){
-      
+      // send the command to connected service(s?)
+      const socketRule = msgOptions.getSocketRule(argObj.cmd);
+      if (socketRule) {
+        const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + Math.random() * Math.random();
+        msgOptions.conversations[newConversationId] = {
+          startedBy: msgOptions.serviceLongName,
+          argObj,
+          conversationId: newConversationId,
+          ws: null,
+          type: 'do',
+          ownHandlers: {
+            resolve: res,
+            reject: rej,
+            dataHandler: handlers.dataHandler,
+          }
+        };
 
+        socketRule.ws.send(JSON.stringify({
+          command: 'do',
+          argObj,
+          conversationId: newConversationId
+        }));
+        return;
+      }
+
+      // send the command to all connected gateways
       msgOptions.askGtw('do', {argObj: argObj})
           .then(function(askRes){
-
             handlers.errorHandler = function(e){
               delete msgOptions.waitingCbsByConvId[askRes.conversationId];
               delete msgOptions.waitingHandlersByConvId[askRes.conversationId];
