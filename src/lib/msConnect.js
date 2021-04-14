@@ -4,7 +4,7 @@ module.exports = function connectCreator(msgOptions){
       msgOptions.log('msg service is connecting...');
       msgOptions.ws.on('connectFailed', function(err) {
         msgOptions.log('Connect Error: connectFailed', err);
-        setTimeout(function() {
+        msgOptions.timeoutIds.connectFailedRetry = setTimeout(function() {
           start('socket');
         }, 2000);
       });
@@ -13,13 +13,17 @@ module.exports = function connectCreator(msgOptions){
         msgOptions.connection.on('error', function(error) {
           msgOptions.log('WS connection ERROR: ', error);
           msgOptions.log('WS connection closed, retry in 2s...');
-          setTimeout(function() {
+          msgOptions.timeoutIds.connetionOnErrorRetry = setTimeout(function() {
             start('socket');
           }, 2000);
         });
         msgOptions.connection.on('close', function() {
           msgOptions.log('WS connection closed, retry in 2s...');
-          setTimeout(function() {
+
+          // TODO: this is some hack, i think we shouldn't have multiple concurrent timeouts here
+          const timeoutIdSuffix = Math.random(); 
+          if (!msgOptions.stopped) msgOptions.timeoutIds[`connetionOnCloseRetry-${timeoutIdSuffix}`] = setTimeout(function() {
+            delete msgOptions.timeoutIds[`connetionOnCloseRetry-${timeoutIdSuffix}`];
             start('socket');
           }, 2000);
         });
@@ -63,7 +67,8 @@ module.exports = function connectCreator(msgOptions){
         try{
           if (!onlyStartSocket) {
             msgOptions.log('Starting ' + msgOptions.serviceName + ' on ' + msgOptions.ip.public + ':' + msgOptions.PORT);
-            msgOptions.app.listen(msgOptions.PORT);
+            msgOptions.expressServer = msgOptions.app.listen(msgOptions.PORT);
+            
             msgOptions.log('Express is listening on ' + msgOptions.PORT);
           }
           msgOptions.log('Connecting websocket to MSG');
@@ -71,7 +76,7 @@ module.exports = function connectCreator(msgOptions){
         } catch (e) {
           if (secondTry) return rej(e);
           log(e, 'Error starting express, will try again in 2s');
-          setTimeout(() => {
+          msgOptions.timeoutIds.expressStartErrorRetry = setTimeout(() => {
             start(onlyStartSocket, true);
           }, 2000);
         }

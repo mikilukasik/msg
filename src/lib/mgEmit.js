@@ -26,12 +26,13 @@ module.exports = function emitCreator(msgOptions){
   };
 
   emit.interval = function(emitName, interval, emitFunc) {
-    return setInterval(() => {
+    msgOptions.intervalIds[`emit-interval-${emitName}`] = setInterval(() => {
       if ((msgOptions.subscriptions[emitName] || []).length) {
         emit(emitName, emitFunc());
       }
     }, interval);
-  }
+    return msgOptions.intervalIds[`emit-interval-${emitName}`];
+  };
 
   return emit;
   

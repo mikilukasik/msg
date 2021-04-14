@@ -25,10 +25,14 @@
     "express-ws": "^4.0.0",
     "network": "^0.5.0",
     "request": "^2.88.2",
-    "websocket": "^1.0.33"
+    "websocket": "^1.0.33",
+    "why-is-node-running": "^2.2.0"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.22.1",
     "esm": "^3.2.25",
     "expect": "^26.6.2",
     "mocha": "^8.3.2",

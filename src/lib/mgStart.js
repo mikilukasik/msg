@@ -10,7 +10,8 @@ module.exports = function mgStartCreator(msgOptions){
 
       msgOptions.slaveFunctions.start();
 
-      msgOptions.app.listen(msgOptions.PORT);
+      msgOptions.expressServer = msgOptions.app.listen(msgOptions.PORT);
+      
       log('Listening on port ' + msgOptions.PORT);
 
       msgOptions.app.use(msgOptions.mw);

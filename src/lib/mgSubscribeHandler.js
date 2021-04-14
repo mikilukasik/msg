@@ -14,7 +14,8 @@ module.exports = function handlerCreator(msgOptions) {
     if (processedEmitIds[id]) return false;
     
     processedEmitIds[id] = true;
-    setTimeout(function() {
+    msgOptions.timeoutIds[`deleteProcessedEmitIds-${id}`] = setTimeout(function() {
+      delete msgOptions.timeoutIds[`deleteProcessedEmitIds-${id}`];
       delete processedEmitIds[id];
     }, 10000);
     return true;

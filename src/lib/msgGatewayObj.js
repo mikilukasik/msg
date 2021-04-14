@@ -18,6 +18,17 @@ module.exports = function msgGatewayObjCreator(msgOptions){
 
   msgGateway.expose = require('./mgExpose')(msgOptions);
 
+  msgGateway.close = () => new Promise((res) => {
+    msgOptions.stopped = true;
+
+    msgOptions.expressServer.close(() => {
+      for (const key of Object.keys(msgOptions.timeoutIds)) clearTimeout(msgOptions.timeoutIds[key]);
+      for (const key of Object.keys(msgOptions.intervalIds)) clearInterval(msgOptions.intervalIds[key]);
+      res();
+    });
+    for(const client of msgOptions.expressWs.getWss().clients) client.close();
+  });
+
   // msgGateway.do = require('./msDo')(msgOptions)
 
   // msgGateway.static = function(route, dirName){

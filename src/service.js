@@ -61,6 +61,10 @@ module.exports = function createMsgService(optionalOptions){
     waitingCbsByConvId: {},
     waitingErrHandlersByConvId: {},
     waitingHandlersByConvId: {},
+    timeoutIds: {},
+    intervalIds: {},
+    stopped: false,
+
     connection: { send: function(){ log('pure method: connection.send'); } },
     ip: {
       private: '',
@@ -82,7 +86,7 @@ module.exports = function createMsgService(optionalOptions){
     if (msgOptions.connected && msgOptions.gotIp) {
       return confirmConnect();
     }
-    setTimeout(function(){msgOptions.callWhenConnected(confirmConnect);}, 200);   // TODO: trigger this on connection instead of setTimeout
+    msgOptions.timeoutIds.callWhenConnected = setTimeout(function(){msgOptions.callWhenConnected(confirmConnect);}, 200);   // TODO: trigger this on connection instead of setTimeout
   }
 
   msgOptions.waitForConnection = function(){

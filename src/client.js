@@ -13,6 +13,9 @@ export const msgClient = (
       waitingCbsByConvId: {},
       waitingErrHandlersByConvId: {},
       wsRoutes: {},
+      timeoutIds: {},
+      intervalIds: {},
+      stopped: false,
     };
 
     // msgOptions.createRule = require('./lib/createRule')(msgOptions); 
@@ -49,7 +52,7 @@ export const msgClient = (
             function check() {
               if (msgOptions.wsRoutes[route].ws.readyState === 1) return res();
               if (new Date().getTime() > deadLine) return rej('Connect timeout (' + timeout + 's)');
-              setTimeout(check, 100);
+              msgOptions.timeoutIds.waitForConnect = setTimeout(check, 100);
             }
             check();
           });
@@ -81,7 +84,7 @@ export const msgClient = (
           };
           ws.onclose = function () {
             console.log('WS connection on route ' + route + ' closed, retry in 2s...');
-            setTimeout(function () {
+            msgOptions.timeoutIds.wsOnCloseRetry = setTimeout(function () {
               start();
             }, 2000);
           };
@@ -254,7 +257,7 @@ export const msgClient = (
           const waitForInitValues = () => new Promise((res, rej) => {
             const check = () => {
               if (gotInitValue) return res();
-              setTimeout(check, 100);
+              msgOptions.timeoutIds.waitForInitValues = setTimeout(check, 100);
             };
             check();
           });

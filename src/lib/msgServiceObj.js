@@ -21,5 +21,15 @@ module.exports = function msgServiceObjCreator(msgOptions){
     return msgOptions.obj.on( 'USE ' + route, msgOptions.express.static(dirName) );
   };
 
+  msgService.close = () => new Promise((res) => {
+    // TODO: we could shut down more gracefully than this
+    msgOptions.stopped = true;
+    msgOptions.expressServer.close(() => {
+      for (const key of Object.keys(msgOptions.timeoutIds)) clearTimeout(msgOptions.timeoutIds[key]);
+      for (const key of Object.keys(msgOptions.intervalIds)) clearInterval(msgOptions.intervalIds[key]);
+      res();
+    });
+  });
+
   return msgService;
 };

@@ -27,7 +27,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
       return new Promise((ress, rejj) => {
         function checkIt(){
           if (thisGateway.ws.socket && thisGateway.ws.socket.writable) return ress();
-          setTimeout(function() {
+          msgOptions.timeoutIds.waitForConnectionRetry = setTimeout(function() {
             checkIt();
           }, 200);
         }
@@ -88,6 +88,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
       thisGateway.reconnectTimeoutId = setTimeout(function() {
         connectToGateway(address);
       }, 2000);
+      msgOptions.timeoutIds.thisGatewayReconnectTimeoutId1 = thisGateway.reconnectTimeoutId;
     });
 
     thisGateway.ws.on('connect', function(connection) {
@@ -106,6 +107,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
         thisGateway.reconnectTimeoutId = setTimeout(function() {
           connectToGateway(address);
         }, 2000);
+        msgOptions.timeoutIds.thisGatewayReconnectTimeoutId2 = thisGateway.reconnectTimeoutId;
       });
       connection.on('message', function(msg2) {
         var message = JSON.parse(msg2.utf8Data);

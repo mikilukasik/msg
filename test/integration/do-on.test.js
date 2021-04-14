@@ -13,6 +13,9 @@ describe('do & on', () => {
       port: nextPortBase,
       serviceName: 'test-msg-service',
       log: () => {},
+      ips: {
+        public: 'ignore'
+      }
     };
 
     const serviceOptions = {
@@ -20,6 +23,9 @@ describe('do & on', () => {
       serviceName: 'test-msg-service',
       gatewayAddress: `0.0.0.0:${nextPortBase}`,
       log: () => {},
+      ips: {
+        public: 'ignore'
+      },
     };
 
     const _msg = {
@@ -28,10 +34,7 @@ describe('do & on', () => {
     }
 
     await _msg.gateway.start();
-    console.log('msgGateway started');
-    
     await _msg.service.connect();
-    console.log('msgService connected');
 
     gatewayOptions.log = getLogger('MSG GATEWAY:');
     gatewayOptions.log = getLogger('MSG SERVICE:');
@@ -39,7 +42,11 @@ describe('do & on', () => {
     msg = _msg;
   });
 
-  // TODO: needs afterEach to gracefully shut down express servers
+  afterEach(async function() {
+    this.timeout(10000);
+    await msg.service.close();
+    await msg.gateway.close();
+  });
 
   it('service.do sends string data to gateway.on', async() => {
     const command = 'testServiceDo2GatewayOn';

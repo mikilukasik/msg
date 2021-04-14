@@ -32,8 +32,13 @@ module.exports = function getIpsCreator(msgOptions){
       var getIp = function(ipName, maxTries){
         if(!maxTries) maxTries = 1;
         return new Promise(function (res, rej){
+
+          // TODO: another hack here, we shouldn't even use this network module at all!
+          if (msgOptions.ips && msgOptions.ips[ipName]) return res(msgOptions.ips[ipName])
+
           var tries = 0;
           function tryIt(){
+            if (msgOptions.stopped) return;
             tries += 1;
             getIpFunc(ipName)(function(err, ip){
               if (err) {

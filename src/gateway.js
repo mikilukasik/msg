@@ -41,8 +41,10 @@ module.exports = function createMsgGateway (options){
   var serviceId = Math.random() * Math.random();
 
   var msgOptions = {
+    ips: options.ips,
     app: app,
     express: express,
+    expressWs,
     log: options.log || console.log,
 
     getArgs: getArgsCreator(),
@@ -52,7 +54,7 @@ module.exports = function createMsgGateway (options){
     serviceLongName: serviceName + '-' + serviceId,
 
     ip: {public: '', private: '', gateway: ''},
-    PORT: options.port || 3030,
+    PORT: options.port || options.PORT || 3030,
     port: {
       public: (process.env.MSG_PUBLIC_PORT || 80),
       private: (options.port || 3030),
@@ -61,7 +63,10 @@ module.exports = function createMsgGateway (options){
     // TODO: make the below a proxy with setTimeout delete when inactive!!!!!! LEAK!!
     conversations: {},  // all active conversations we are part of (LEAK???!!!!!!!)
     gateways: {},
-    
+    timeoutIds: {},
+    intervalIds: {},
+    stopped: false,
+
                         // this should always have one of each rule, on the current fastest route
     httpRoutes: {},      // keys are like "GET /admin"
     socketRules: [],    // keys are like "mongo"
