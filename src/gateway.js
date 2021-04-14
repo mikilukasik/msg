@@ -2,10 +2,10 @@
 var DEV = ['development', 'dev'].indexOf( process.env.NODE_ENV ) >= 0 
 
 // var log = require('./logger')({alias: 'msg-gateway'});  // TODO: get logger from process, dont won it!!
-var log = console.log;
-process.on('unhandledRejection', ur => {
-  log('unhandledRejection', ur);
-});
+// var log = console.log;
+// process.on('unhandledRejection', ur => {
+//   log('unhandledRejection', ur);
+// });
 
 var fs = require('fs');
 var path = require('path');
@@ -43,7 +43,7 @@ module.exports = function createMsgGateway (options){
   var msgOptions = {
     app: app,
     express: express,
-    log: options.log || log,
+    log: options.log || console.log,
 
     getArgs: getArgsCreator(),
 
@@ -138,14 +138,11 @@ module.exports = function createMsgGateway (options){
   msgOptions.obj.start = () => msgOptions.getIps('private, public, gateway', {maxTries: 5, optional: 'gateway', ip: msgOptions.ip})
     .then(
       function(ips){
-        log('ips: ', ips);
+        msgOptions.log('ips: ', ips);
         msgOptions.gotIp = true;
         return msgOptions._start();
       },
       function(err){ throw err; }
-    ).then(
-      log,
-      log
     );
 
   return msgOptions.obj;

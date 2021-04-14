@@ -1,7 +1,7 @@
 import expect from 'expect';
 import { runOnMsgGateway, runOnMsgService } from '../harness';
 
-describe('msg.on & msg.do', () => {
+describe('test on multiple spawned processes', () => {
   it('msgService.do can call msgGateway.on and gets the response', function(done) {
     this.timeout(10000);
     let oneFinished = false;
@@ -44,7 +44,7 @@ describe('msg.on & msg.do', () => {
         msgGateway.do('g2s_socketTest', { test: 'gateway-to-service-test' })
           .then(response => log({ response }))
           .then(shutDown);
-      }, 2000);
+      }, 4000);
     },
     ({ err, stdout, stderr, findInLogLines }) => {
       if (err) { console.error(stderr, stdout); throw err; }

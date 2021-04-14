@@ -67,7 +67,7 @@ module.exports = function connectCreator(msgOptions){
             msgOptions.log('Express is listening on ' + msgOptions.PORT);
           }
           msgOptions.log('Connecting websocket to MSG');
-          msgOptions.ws.connect('http://' + (process.env.MSG_ADDRESS || (process.env.MSG_PORT && process.env.MSG_PORT.replace('tcp://', '')) || msgOptions.ip.public) + '/sockets');
+          msgOptions.ws.connect('http://' + (msgOptions.gatewayAddress || process.env.MSG_ADDRESS || (process.env.MSG_PORT && process.env.MSG_PORT.replace('tcp://', '')) || msgOptions.ip.public) + '/sockets');
         } catch (e) {
           if (secondTry) return rej(e);
           log(e, 'Error starting express, will try again in 2s');
