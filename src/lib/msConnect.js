@@ -11,8 +11,7 @@ module.exports = function connectCreator(msgOptions){
       msgOptions.ws.on('connect', function(connection2) {
         msgOptions.connection = connection2;
         msgOptions.connection.on('error', function(error) {
-          msgOptions.log('WS connection ERROR: ', error);
-          msgOptions.log('WS connection closed, retry in 2s...');
+          msgOptions.log('WS connection errir, will retry in 2s.. ERROR: ', error);
           msgOptions.timeoutIds.connetionOnErrorRetry = setTimeout(function() {
             start('socket');
           }, 2000);

@@ -22,12 +22,14 @@ module.exports = function msgServiceObjCreator(msgOptions){
   };
 
   msgService.close = () => new Promise((res) => {
+    msgOptions.log(`Closing msg service ${msgOptions.serviceName}.`);
     // TODO: we could shut down more gracefully than this
     msgOptions.stopped = true;
     msgOptions.expressServer.close(() => {
       for (const key of Object.keys(msgOptions.timeoutIds)) clearTimeout(msgOptions.timeoutIds[key]);
       for (const key of Object.keys(msgOptions.intervalIds)) clearInterval(msgOptions.intervalIds[key]);
-      res();
+      msgOptions.log(`Msg service ${msgOptions.serviceName} closed.`);
+    res();
     });
   });
 

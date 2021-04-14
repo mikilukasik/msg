@@ -71,7 +71,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
         ws: {
           send: (jsStr) => {
             const message2 = 'ERROR: Unknown command from ' + message.owner + ': ' + (jsStr);
-            log(message2);
+            msgOptions.log(message2);
             throw new Error(message2);
           }
         }

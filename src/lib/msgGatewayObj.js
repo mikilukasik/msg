@@ -19,11 +19,13 @@ module.exports = function msgGatewayObjCreator(msgOptions){
   msgGateway.expose = require('./mgExpose')(msgOptions);
 
   msgGateway.close = () => new Promise((res) => {
+    msgOptions.log(`Closing msg gateway ${msgOptions.serviceName}`);
     msgOptions.stopped = true;
 
     msgOptions.expressServer.close(() => {
       for (const key of Object.keys(msgOptions.timeoutIds)) clearTimeout(msgOptions.timeoutIds[key]);
       for (const key of Object.keys(msgOptions.intervalIds)) clearInterval(msgOptions.intervalIds[key]);
+      msgOptions.log(`Msg gateway ${msgOptions.serviceName} closed.`);
       res();
     });
     for(const client of msgOptions.expressWs.getWss().clients) client.close();
