@@ -10,10 +10,10 @@ let testDataArray;
 
 let nextPortBase = 15000;
 
-const getLogger = (prefix) => (...args) => console.log(prefix, ...args);
+const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
 
 describe.only('do & on', () => {
-  beforeEach(async() => {
+  beforeEach(async function() {
     nextPortBase += 10;
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
@@ -25,20 +25,22 @@ describe.only('do & on', () => {
       serviceName: `test-msg-gateway-${nextPortBase}`,
       // log: () => {},
       // TODO: remove this hack below once network package is gone
-      ips: { public: 'ignore' },
+      ips: { public: '0.0.0.0' },
     };
 
     const serviceOptions = {
-      PORT: nextPortBase + 1,
+      port: nextPortBase + 1,
       serviceName: `test-msg-service-${nextPortBase + 1}`,
       gatewayAddress: `0.0.0.0:${nextPortBase}`,
       // log: () => {},
       // TODO: remove this hack below once network package is gone
-      ips: { public: 'ignore' },
+      ips: { public: '0.0.0.0' },
     };
 
     gatewayOptions.log = getLogger(`MSG GATEWAY ${nextPortBase}:`);
     serviceOptions.log = getLogger(`MSG SERVICE ${nextPortBase + 1}:`);
+
+    msg = undefined;
 
     const _msg = {
       gateway: _msgGateway(gatewayOptions),
@@ -60,36 +62,43 @@ describe.only('do & on', () => {
     await msg.gateway.close();
   });
 
-  it('service.do sends string data to gateway.on', async() => {
+  it('service.do sends string data to gateway.on', () => new Promise(async(done) => {
     const command = 'testServiceDo2GatewayOnString';
     msg.gateway.on(command, (data) => {
       expect(data.args[1]).toBe(testDataString);
+      done();
     });
+    await new Promise(r => setTimeout(r, 5));
     msg.service.do(command, testDataString);
-  });
+  }));
 
-  it('gateway.do sends string data to service.on', async() => {
+  it('gateway.do sends string data to service.on', () => new Promise(async(done) => {
     const command = 'testGatewayDo2ServiceOnString';
     msg.service.on(command, (data) => {
       expect(data.args[1]).toBe(testDataString);
+      done();
     });
+    await new Promise(r => setTimeout(r, 5));
     msg.gateway.do(command, testDataString);
-  });
+  }));
 
-  it('service.do sends number data to gateway.on', async() => {
+  it('service.do sends number data to gateway.on', () => new Promise(async(done) => {
     const command = 'testServiceDo2GatewayOnNumber';
     msg.gateway.on(command, (data) => {
-      console.log(typeof testDataNumber)
       expect(data.args[1]).toBe(testDataNumber);
+      done();
     });
+    await new Promise(r => setTimeout(r, 5));
     msg.service.do(command, testDataNumber);
-  });
+  }));
 
-  it('gateway.do sends number data to service.on', async() => {
+  it('gateway.do sends number data to service.on', () => new Promise(async(done) => {
     const command = 'testGatewayDo2ServiceOnNumber';
     msg.service.on(command, (data) => {
       expect(data.args[1]).toBe(testDataNumber);
+      done();
     });
+    await new Promise(r => setTimeout(r, 5));
     msg.gateway.do(command, testDataNumber);
-  });
+  }));
 });

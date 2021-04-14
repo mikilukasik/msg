@@ -42,8 +42,7 @@ module.exports = function connectCreator(msgOptions){
           callBack(message);
         });
         
-        var message = 'WebSocket Client Connected';
-        msgOptions.log(message);
+        msgOptions.log(`WebSocket Client Connected to ${msgOptions.ws.url.host}`);
         msgOptions.connected = true;
 
         // send wsRoutes (like '/authSocket') to gtw
@@ -63,6 +62,7 @@ module.exports = function connectCreator(msgOptions){
       });
 
       function start(onlyStartSocket, secondTry) {
+        if (msgOptions.stopped) return;
         try{
           if (!onlyStartSocket) {
             msgOptions.log('Starting ' + msgOptions.serviceName + ' on ' + msgOptions.ip.public + ':' + msgOptions.PORT);
@@ -70,8 +70,9 @@ module.exports = function connectCreator(msgOptions){
             
             msgOptions.log('Express is listening on ' + msgOptions.PORT);
           }
-          msgOptions.log('Connecting websocket to MSG');
-          msgOptions.ws.connect('http://' + (msgOptions.gatewayAddress || process.env.MSG_ADDRESS || (process.env.MSG_PORT && process.env.MSG_PORT.replace('tcp://', '')) || msgOptions.ip.public) + '/sockets');
+          const gatewayAddress = 'ws://' + (msgOptions.gatewayAddress || process.env.MSG_ADDRESS || (process.env.MSG_PORT && process.env.MSG_PORT.replace('tcp://', '')) || msgOptions.ip.public) + '/sockets';
+          msgOptions.log(`Connecting websocket to MSG on ${gatewayAddress}`);
+          msgOptions.ws.connect(gatewayAddress);
         } catch (e) {
           if (secondTry) return rej(e);
           log(e, 'Error starting express, will try again in 2s');

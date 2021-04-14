@@ -1,45 +1,43 @@
-// msgService
-var DEV = ['development', 'dev'].indexOf( process.env.NODE_ENV ) >= 0 
-
-var log = console.log;
-process.on('unhandledRejection', ur => {
-  log('unhandledRejection', ur);
-});
-
-var fs = require('fs');
-var path = require('path');
-
-var shareFile = () => log('!!!PURE FUNCTION shareFile');
-// if (!DEV) {
-//   log('Starting memwatch, will dump and serve heapfiles on memory leaks.');
-//   var memwatch = require('memwatch-next');
-//   var heapdump = require('heapdump');  
-
-
-//   memwatch.on('leak', function(info) {
-//     log('!!!!! MEMORY LEAK IN MSG GATEWAY !!!!!', info, 'Dumping heap in file...');
-//     heapdump.writeSnapshot(function(err, _filename) {  
-//       if (err) return log(err);
-//       const filename = path.resolve(_filename);
-//       log('dump written to', filename);
-//       shareFile(filename);
-//     });
-//   });
-// }
-
-var express = require('express');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var WebSocketClient = require('websocket').client;
-
-var getArgsCreator = require('./lib/getargs');
-
-var app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
-
 module.exports = function createMsgService(optionalOptions){
+  var DEV = ['development', 'dev'].indexOf( process.env.NODE_ENV ) >= 0 
+
+  var log = console.log;
+  process.on('unhandledRejection', ur => {
+    log('unhandledRejection', ur);
+  });
+  
+  var fs = require('fs');
+  var path = require('path');
+  
+  var shareFile = () => log('!!!PURE FUNCTION shareFile');
+  // if (!DEV) {
+  //   log('Starting memwatch, will dump and serve heapfiles on memory leaks.');
+  //   var memwatch = require('memwatch-next');
+  //   var heapdump = require('heapdump');  
+  
+  
+  //   memwatch.on('leak', function(info) {
+  //     log('!!!!! MEMORY LEAK IN MSG GATEWAY !!!!!', info, 'Dumping heap in file...');
+  //     heapdump.writeSnapshot(function(err, _filename) {  
+  //       if (err) return log(err);
+  //       const filename = path.resolve(_filename);
+  //       log('dump written to', filename);
+  //       shareFile(filename);
+  //     });
+  //   });
+  // }
+  
+  var express = require('express');
+  var cookieParser = require('cookie-parser');
+  var bodyParser = require('body-parser');
+  var WebSocketClient = require('websocket').client;
+
+  var getArgsCreator = require('./lib/getargs');
+  
+  var app = express();
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
   if (typeof optionalOptions === 'undefined') optionalOptions = {};
   if (typeof optionalOptions !== 'object') throw new Error('msgService string constructor not implemented: ' + optionalOptions);

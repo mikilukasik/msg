@@ -3,7 +3,7 @@ const customCode = require(`../../_temp/customCode-${testRunId}.js`);
 const _msgService = require('../../../src/service');
 
 const msgService = _msgService({
-  PORT: 11221,
+  port: 11221,
   serviceName: `test-msg-service-${testRunId}`,
   ips: {
     public: 'ignore',
