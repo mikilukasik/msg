@@ -12,7 +12,7 @@ let nextPortBase = 15000;
 
 const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
 
-describe.only('do & on', () => {
+describe('do & on', () => {
   beforeEach(async function() {
     nextPortBase += 10;
     testDataString = `some string ${Math.random()}`;
