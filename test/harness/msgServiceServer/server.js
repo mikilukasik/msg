@@ -4,14 +4,13 @@ const _msgService = require('../../../src/service');
 
 const msgService = _msgService({
   PORT: 11221,
-  serviceName: `test-msg-service-${testRunId}`
+  serviceName: `test-msg-service-${testRunId}`,
+  ips: {
+    public: 'ignore',
+  },
 });
 
 msgService.connect().then(() => {
-  customCode({ log: console.log, msgService, shutDown: () => process.exit(0) });
+  customCode({ log: console.log, msgService });
 });
 
-setTimeout(() => {
-  console.log('killing after 10 seconds');
-  process.exit(1);
-}, 10000);

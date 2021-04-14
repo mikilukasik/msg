@@ -6,11 +6,11 @@ describe('test on multiple spawned processes', () => {
     this.timeout(10000);
     let oneFinished = false;
 
-    runOnMsgGateway(({ msgGateway, log, shutDown }) => {
+    runOnMsgGateway(({ msgGateway, log }) => {
       msgGateway.on('socketTest', (data, comms) => {
         log({ data });
         comms.send({ success: true });
-        shutDown();
+        msgGateway.close();
       });
     },
     ({ err, stdout, stderr, findInLogLines }) => {
@@ -21,10 +21,10 @@ describe('test on multiple spawned processes', () => {
       oneFinished = true;
     });
 
-    runOnMsgService(({ msgService, log, shutDown }) => {
+    runOnMsgService(({ msgService, log }) => {
       msgService.do('socketTest', { test: 'service-to-gateway-test' })
         .then(response => log({ response }))
-        .then(shutDown);
+        .then(msgService.close);
     },
     ({ err, stdout, stderr, findInLogLines }) => {
       if (err) { console.error(stderr, stdout); throw err; }
@@ -38,12 +38,12 @@ describe('test on multiple spawned processes', () => {
     this.timeout(15000);
     let oneFinished = false;
 
-    runOnMsgGateway(({ msgGateway, log, shutDown }) => {
+    runOnMsgGateway(({ msgGateway, log }) => {
       // TODO: gateway should provide a method to wait for socket rule to be created. this timeout is a nasty hack here
       setTimeout(() => {
         msgGateway.do('g2s_socketTest', { test: 'gateway-to-service-test' })
           .then(response => log({ response }))
-          .then(shutDown);
+          .then(msgGateway.close);
       }, 4000);
     },
     ({ err, stdout, stderr, findInLogLines }) => {
@@ -53,13 +53,13 @@ describe('test on multiple spawned processes', () => {
       oneFinished = true;
     });
 
-    runOnMsgService(({ msgService, log, shutDown }) => {
+    runOnMsgService(({ msgService, log }) => {
       msgService.on('g2s_socketTest', (data, comms) => {
         log({ data, comms });
         comms.send({ g2s_success: true });
         
         // TODO: comms.send should return a promise that resolves once the data is sent out
-        setTimeout(shutDown, 500);
+        setTimeout(msgService.close, 500);
       });
     },
     ({ err, stdout, stderr, findInLogLines }) => {

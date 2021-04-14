@@ -50,12 +50,23 @@ describe('do & on', () => {
 
   it('service.do sends string data to gateway.on', async() => {
     const command = 'testServiceDo2GatewayOn';
-    const testData = 'some string';
+    const testData = `some string ${Math.random()}`;
 
     msg.gateway.on(command, (data) => {
       expect(data.args[1]).toBe(testData);
     });
 
     msg.service.do(command, testData);
+  });
+
+  it('gateway.do sends string data to service.on', async() => {
+    const command = 'testGatewayDo2ServiceOn';
+    const testData = `some string ${Math.random()}`;
+
+    msg.service.on(command, (data) => {
+      expect(data.args[1]).toBe(testData);
+    });
+
+    msg.gateway.do(command, testData);
   });
 });

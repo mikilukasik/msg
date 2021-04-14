@@ -4,14 +4,12 @@ const _msgGateway = require('../../../src/gateway');
 
 const msgGateway = _msgGateway({
   port: 11220,
-  serviceName: `test-msg-gateway-${testRunId}`
+  serviceName: `test-msg-gateway-${testRunId}`,
+  ips: {
+    public: 'ignore',
+  },
 });
 
 msgGateway.start().then(() => {
-  customCode({ log: console.log, msgGateway, shutDown: () => process.exit(0) });
+  customCode({ log: console.log, msgGateway });
 });
-
-setTimeout(() => {
-  console.log('killing after 10 seconds');
-  process.exit(1);
-}, 10000);
