@@ -7,7 +7,7 @@
     "test": "npm run test:integration",
     "build-dev": "webpack --mode=development",
     "build": "webpack --mode=production",
-    "test:integration": "npx mocha --require esm test/integration"
+    "test:integration": "npx mocha --require esm --trace-warnings . test/integration"
   },
   "repository": {
     "type": "git",

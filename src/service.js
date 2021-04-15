@@ -2,9 +2,9 @@ module.exports = function createMsgService(optionalOptions){
   var DEV = ['development', 'dev'].indexOf( process.env.NODE_ENV ) >= 0 
 
   var log = console.log;
-  process.on('unhandledRejection', ur => {
-    log('unhandledRejection', ur);
-  });
+  // process.on('unhandledRejection', ur => {
+  //   log('unhandledRejection', ur);
+  // });
   
   var fs = require('fs');
   var path = require('path');
