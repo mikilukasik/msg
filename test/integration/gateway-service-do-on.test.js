@@ -44,8 +44,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
     gatewayOptions.log = getLogger(`MSG GATEWAY ${nextPortBase}:`);
     serviceOptions.log = getLogger(`MSG SERVICE ${nextPortBase + 1}:`);
 
-    msg = undefined;
-
     const _msg = {
       gateway: _msgGateway(gatewayOptions),
       service: _msgService(serviceOptions),
