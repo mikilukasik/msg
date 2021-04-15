@@ -1,14 +1,10 @@
 import expect from 'expect';
-import _msgService from '../../src/service';
-import _msgGateway from '../../src/gateway';
+import _msgServiceLocal from '../../src/service';
+import _msgGatewayLocal from '../../src/gateway';
+import _msgServiceMaster from '../../test/_master_branch/src/service';
+import _msgGatewayMaster from '../../test/_master_branch/src/gateway';
 
-const MAX_TEST_LENGTH = 2000;
-const MIN_ACCEPTED_CYCLES = {
-  service2serviceDoOnSmallString: 7400,
-  service2serviceDoOnSmallObject: 8900,
-  service2serviceDoOnLargeString: 95,
-  service2serviceDoOnLargeObject: 190,
-};
+const MAX_TEST_LENGTH = 1000;
 
 let msg;
 let command;
@@ -33,145 +29,115 @@ const generateLargeData = () => {
   testDataObjectResponse = [...new Array(1000)].reduce((result, e, index) => { result[`key${index}${Math.random()}`] = Math.random(); return result; }, {});
 };
 
-const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
-
 describe('service <--> service: performance', function() {
   this.timeout(MAX_TEST_LENGTH + 1500);
   this.retries(2);
 
   beforeEach(async function() {
-    nextPortBase += 10;
+    nextPortBase += 20;
     command = `someCommand${Math.random()}`;
 
-    const gatewayOptions = {
+    const gatewayOptionsLocal = {
       port: nextPortBase,
       serviceName: `test-msg-gateway-${nextPortBase}`,
       ips: { public: '0.0.0.0' },
+      log: () => {},
     };
 
-    const service1Options = {
+    const gatewayOptionsMaster = {
+      port: nextPortBase + 10,
+      serviceName: `test-msg-gateway-${nextPortBase + 10}`,
+      ips: { public: '0.0.0.0' },
+      log: () => {},
+    };
+
+    const service1OptionsLocal = {
       PORT: nextPortBase + 1,
       serviceName: `test-msg-service-${nextPortBase + 1}`,
       gatewayAddress: `0.0.0.0:${nextPortBase}`,
       ips: { public: '0.0.0.0' },
+      log: () => {},
     };
 
-    const service2Options = {
+    const service2OptionsLocal = {
       PORT: nextPortBase + 2,
       serviceName: `test-msg-service-${nextPortBase + 2}`,
       gatewayAddress: `0.0.0.0:${nextPortBase}`,
       ips: { public: '0.0.0.0' },
+      log: () => {},
     };
 
-    gatewayOptions.log = getLogger(`MSG GATEWAY ${nextPortBase}:`);
-    service1Options.log = getLogger(`MSG SERVICE ${nextPortBase + 1}:`);
-    service2Options.log = getLogger(`MSG SERVICE ${nextPortBase + 2}:`);
+    const service1OptionsMaster = {
+      PORT: nextPortBase + 11,
+      serviceName: `test-msg-service-${nextPortBase + 11}`,
+      gatewayAddress: `0.0.0.0:${nextPortBase + 10}`,
+      ips: { public: '0.0.0.0' },
+      log: () => {},
+    };
+
+    const service2OptionsMaster = {
+      PORT: nextPortBase + 12,
+      serviceName: `test-msg-service-${nextPortBase + 12}`,
+      gatewayAddress: `0.0.0.0:${nextPortBase + 10}`,
+      ips: { public: '0.0.0.0' },
+      log: () => {},
+    };
 
     const _msg = {
-      gateway: _msgGateway(gatewayOptions),
-      service1: _msgService(service1Options),
-      service2: _msgService(service2Options),
+      localGateway: _msgGatewayLocal(gatewayOptionsLocal),
+      localService1: _msgServiceLocal(service1OptionsLocal),
+      localService2: _msgServiceLocal(service2OptionsLocal),
+      masterGateway: _msgGatewayMaster(gatewayOptionsMaster),
+      masterService1: _msgServiceMaster(service1OptionsMaster),
+      masterService2: _msgServiceMaster(service2OptionsMaster),
     };
 
-    await _msg.gateway.start();
-    await _msg.service1.connect();
-    await _msg.service2.connect();
+    await _msg.localGateway.start();
+    await _msg.masterGateway.start();
+    await _msg.localService1.connect();
+    await _msg.masterService1.connect();
+    await _msg.localService2.connect();
+    await _msg.masterService2.connect();
 
     msg = _msg;
   });
 
   afterEach(async function() {
     this.timeout(10000);
-    await msg.service1.close();
-    await msg.service2.close();
-    await msg.gateway.close();
+    await msg.localService1.close();
+    await msg.localService2.close();
+    await msg.localGateway.close();
+    await msg.masterService1.close();
+    await msg.masterService2.close();
+    await msg.masterGateway.close();
   });
 
-  it(`Completes at least ${MIN_ACCEPTED_CYCLES.service2serviceDoOnSmallString} full service to service cycles with small string data`, async() => {
+  it(`Completing full service to service cycles with small string data`, async() => {
     generateSmallData();
-    msg.service1.on(command, (data, comms) => {
-      comms.send(testDataStringResponse);
-    });
-    await msg.gateway.waitForRule(command);
+    msg.localService1.on(command, (data, comms) => comms.send(testDataStringResponse));
+    await msg.localGateway.waitForRule(command);
+
+    msg.masterService1.on(command, (data, comms) => comms.send(testDataStringResponse));
+    await msg.localGateway.waitForRule(command);
 
     const endBeforeTimestamp = Date.now() + MAX_TEST_LENGTH;
-    let completedCyclesCount = 0;
+    const completedCyclesCount = { local: 0, master: 0 };
 
-    const sendDo = () => msg.service2.do(command, testDataString)
-      .then(() => {
-        if (Date.now() > endBeforeTimestamp) return;
-        completedCyclesCount += 1;
-        return sendDo();
-      });
-    await sendDo();
-
-    console.log(`Completed ${completedCyclesCount} full do-on cycles with small string data.`)
-    expect(completedCyclesCount).toBeGreaterThan(MIN_ACCEPTED_CYCLES.service2serviceDoOnSmallString);
-  });
-
-  it(`Completes at least ${MIN_ACCEPTED_CYCLES.service2serviceDoOnSmallObject} full service to service cycles with small object data`, async() => {
-    generateSmallData();
-    msg.service1.on(command, (data, comms) => {
-      comms.send(testDataObjectResponse);
+    const localSendDo = () => msg.localService2.do(command, testDataString).then(() => {
+      if (Date.now() > endBeforeTimestamp) return;
+      completedCyclesCount.local += 1;
+      return localSendDo();
     });
-    await msg.gateway.waitForRule(command);
 
-    const endBeforeTimestamp = Date.now() + MAX_TEST_LENGTH;
-    let completedCyclesCount = 0;
-
-    const sendDo = () => msg.service2.do(command, testDataObject)
-      .then(() => {
-        if (Date.now() > endBeforeTimestamp) return;
-        completedCyclesCount += 1;
-        return sendDo();
-      });
-    await sendDo();
-
-    console.log(`Completed ${completedCyclesCount} full do-on cycles with small object data.`)
-    expect(completedCyclesCount).toBeGreaterThan(MIN_ACCEPTED_CYCLES.service2serviceDoOnSmallObject);
-  });
-
-  it(`Completes at least ${MIN_ACCEPTED_CYCLES.service2serviceDoOnLargeString} full service to service cycles with large string data`, async() => {
-    generateLargeData();
-    msg.service1.on(command, (data, comms) => {
-      comms.send(testDataStringResponse);
+    const masterSendDo = () => msg.masterService2.do(command, testDataString).then(() => {
+      if (Date.now() > endBeforeTimestamp) return;
+      completedCyclesCount.master += 1;
+      return masterSendDo();
     });
-    await msg.gateway.waitForRule(command);
 
-    const endBeforeTimestamp = Date.now() + MAX_TEST_LENGTH;
-    let completedCyclesCount = 0;
+    await Promise.all([localSendDo(), masterSendDo()]);
 
-    const sendDo = () => msg.service2.do(command, testDataString)
-      .then(() => {
-        if (Date.now() > endBeforeTimestamp) return;
-        completedCyclesCount += 1;
-        return sendDo();
-      });
-    await sendDo();
-
-    console.log(`Completed ${completedCyclesCount} full do-on cycles with large string data.`)
-    expect(completedCyclesCount).toBeGreaterThan(MIN_ACCEPTED_CYCLES.service2serviceDoOnLargeString);
-  });
-
-  it(`Completes at least ${MIN_ACCEPTED_CYCLES.service2serviceDoOnLargeObject} full service to service cycles with large object data`, async() => {
-    generateLargeData;
-    msg.service1.on(command, (data, comms) => {
-      comms.send(testDataObjectResponse);
-    });
-    await msg.gateway.waitForRule(command);
-
-    const endBeforeTimestamp = Date.now() + MAX_TEST_LENGTH;
-    let completedCyclesCount = 0;
-
-    const sendDo = () => msg.service2.do(command, testDataObject)
-      .then(() => {
-        if (Date.now() > endBeforeTimestamp) return;
-        completedCyclesCount += 1;
-        return sendDo();
-      });
-    await sendDo();
-
-    console.log(`Completed ${completedCyclesCount} full do-on cycles with large object data.`)
-    expect(completedCyclesCount).toBeGreaterThan(MIN_ACCEPTED_CYCLES.service2serviceDoOnLargeObject);
+    console.log(`Full do-on cycles with small string data: local: ${completedCyclesCount.local}, master: ${completedCyclesCount.master}`);
+    expect(completedCyclesCount.local).toBeGreaterThanOrEqual(completedCyclesCount.master);
   });
 });
