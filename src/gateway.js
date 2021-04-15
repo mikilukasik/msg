@@ -66,7 +66,7 @@ module.exports = function createMsgGateway (options){
     timeoutIds: {},
     intervalIds: {},
     stopped: false,
-
+    waitForRuleResolvers: {},
                         // this should always have one of each rule, on the current fastest route
     httpRoutes: {},      // keys are like "GET /admin"
     socketRules: [],    // keys are like "mongo"

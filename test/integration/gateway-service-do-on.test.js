@@ -69,7 +69,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
     return msg.service.do(command, testDataString)
       .then(response => {
         expect(response).toStrictEqual(testDataStringResponse);
@@ -82,7 +81,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
+    await msg.gateway.waitForRule(command);
     return msg.gateway.do(command, testDataString)
       .then(response => {
         expect(response).toStrictEqual(testDataStringResponse);
@@ -95,7 +94,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
     return msg.service.do(command, testDataNumber)
       .then(response => {
         expect(response).toStrictEqual(testDataNumberResponse);
@@ -108,7 +106,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
+    await msg.gateway.waitForRule(command);
     return msg.gateway.do(command, testDataNumber)
       .then(response => {
         expect(response).toStrictEqual(testDataNumberResponse);
@@ -121,7 +119,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
     return msg.service.do(command, testDataObject)
       .then(response => {
         expect(response).toStrictEqual(testDataObjectResponse);
@@ -134,7 +131,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
+    await msg.gateway.waitForRule(command);
     return msg.gateway.do(command, testDataObject)
       .then(response => {
         expect(response).toStrictEqual(testDataObjectResponse);
@@ -147,7 +144,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
     return msg.service.do(command, testDataArray)
       .then(response => {
         expect(response).toStrictEqual(testDataArrayResponse);
@@ -160,7 +156,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
       expect(data.args[1]).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
-    await new Promise(r => setTimeout(r, 5));
+    await msg.gateway.waitForRule(command);
     return msg.gateway.do(command, testDataArray)
       .then(response => {
         expect(response).toStrictEqual(testDataArrayResponse);

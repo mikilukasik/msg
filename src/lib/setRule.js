@@ -35,6 +35,9 @@ module.exports = function setRuleCreator(msgOptions){
     case 'socket':
       msgOptions.socketRules.push(rule);
       log('socket rule from ' + rule.owner + ' stored: ' + rule.cmd);
+
+      // TODO: waitForRule shouldn't only know about socket rules
+      msgOptions.waitForRuleResolvers[rule.cmd].forEach(resolve => resolve(rule));
       break;
     case 'publicSocket':
       if (!rule.ws){log('ERROR: RULE WITHOUT WS ', rule);}
