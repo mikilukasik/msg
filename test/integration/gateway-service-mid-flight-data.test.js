@@ -30,7 +30,7 @@ describe('gateway <--> service: .data & .onData', () => {
     };
 
     const serviceOptions = {
-      port: nextPortBase + 1,
+      PORT: nextPortBase + 1,
       serviceName: `test-msg-service-${nextPortBase + 1}`,
       gatewayAddress: `0.0.0.0:${nextPortBase}`,
       ips: { public: '0.0.0.0' },

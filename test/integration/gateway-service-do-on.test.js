@@ -3,6 +3,7 @@ import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 
 let msg;
+let command;
 let testDataString;
 let testDataStringResponse;
 let testDataNumber;
@@ -19,6 +20,7 @@ const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
 describe('gateway <--> service: .do and .on, response with comms.send()', () => {
   beforeEach(async function() {
     nextPortBase += 10;
+    command = `someCommand${Math.random()}`;
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
     testDataObject = { [testDataString]: testDataNumber };
@@ -35,7 +37,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
     };
 
     const serviceOptions = {
-      port: nextPortBase + 1,
+      PORT: nextPortBase + 1,
       serviceName: `test-msg-service-${nextPortBase + 1}`,
       gatewayAddress: `0.0.0.0:${nextPortBase}`,
       ips: { public: '0.0.0.0' },
@@ -62,7 +64,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('service.do sends string data to gateway.on and receives string answer', async() => {
-    const command = 'testServiceDo2GatewayOnString';
     msg.gateway.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataString);
       comms.send(testDataStringResponse);
@@ -74,7 +75,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('gateway.do sends string data to service.on and receives string answer', async() => {
-    const command = 'testGatewayDo2ServiceOnString';
     msg.service.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataString);
       comms.send(testDataStringResponse);
@@ -87,7 +87,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('service.do sends number data to gateway.on and receives number answer', async() => {
-    const command = 'testServiceDo2GatewayOnNumber';
     msg.gateway.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
@@ -99,7 +98,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('gateway.do sends number data to service.on and receives number answer', async() => {
-    const command = 'testGatewayDo2ServiceOnNumber';
     msg.service.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
@@ -112,7 +110,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('service.do sends object data to gateway.on and receives object answer', async() => {
-    const command = 'testServiceDo2GatewayOnObject';
     msg.gateway.on(command, (data, comms) => {
       expect(data.args[1]).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
@@ -124,7 +121,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('gateway.do sends object data to service.on and receives object answer', async() => {
-    const command = 'testGatewayDo2ServiceOnObject';
     msg.service.on(command, (data, comms) => {
       expect(data.args[1]).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
@@ -137,7 +133,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('service.do sends array data to gateway.on and receives array answer', async() => {
-    const command = 'testServiceDo2GatewayOnArray';
     msg.gateway.on(command, (data, comms) => {
       expect(data.args[1]).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
@@ -149,7 +144,6 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('gateway.do sends array data to service.on and receives array answer', async() => {
-    const command = 'testGatewayDo2ServiceOnArray';
     msg.service.on(command, (data, comms) => {
       expect(data.args[1]).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
