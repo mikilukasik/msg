@@ -1,9 +1,9 @@
-const { testRunId } = process.env;
+const { testRunId, port } = process.env;
 const customCode = require(`../../_temp/customCode-${testRunId}.js`);
-const _msgGateway = require('../../../src/gateway');
+const _msgGateway = require('../../../test/_master_branch/src/gateway');
 
 const msgGateway = _msgGateway({
-  port: 11220,
+  port,
   serviceName: `test-msg-gateway-${testRunId}`,
   ips: {
     public: 'ignore',

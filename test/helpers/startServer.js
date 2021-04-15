@@ -3,11 +3,12 @@ import { exec } from 'child_process';
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-export const startServer = ({ dirName, code, env = {}, cb: _cb }) => {
+export const startServer = ({ type, code, env = {}, port, cb: _cb }) => {
   env.testRunId = `${Date.now()}-${Math.random()}`.replace('/', '-');
-  const dirNameWithPrefix = `test/helpers/${dirName}/`
+  env.port = port;
+
+  const serverPath = resolve(`test/helpers/${type}Server/server.js`);
   const customCodePath = resolve(`test/_temp/customCode-${env.testRunId}.js`);
-  const serverEntry = resolve(`${dirNameWithPrefix}server.js`);
   const envString = Object.keys(env).map(key => `${key}=${env[key]} `).join(' ');
 
   const codeString = `module.exports = ${code.toString()};`;
@@ -18,5 +19,5 @@ export const startServer = ({ dirName, code, env = {}, cb: _cb }) => {
     const findInLogLines = (str) => logArray.find(line => line.indexOf(str) >= 0);
     _cb({ err, stdout, stderr, findInLogLines });
   }
-  return exec(`${envString} node ${serverEntry}`, cb);
+  return exec(`${envString} node ${serverPath}`, cb);
 };

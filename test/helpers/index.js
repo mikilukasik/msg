@@ -1,2 +1,1 @@
-export { runOnMsgService } from './runOnMsgService';
-export { runOnMsgGateway } from './runOnMsgGateway';
+export { startServer } from './startServer';
