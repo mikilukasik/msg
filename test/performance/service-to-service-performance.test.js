@@ -174,45 +174,4 @@ describe('service <--> service: performance', function() {
     console.log(`Completed ${completedCyclesCount} full do-on cycles with large object data.`)
     expect(completedCyclesCount).toBeGreaterThan(MIN_ACCEPTED_CYCLES.service2serviceDoOnLargeObject);
   });
-
-
-  
-  // it('.do sends number data to .on and receives number answer', async() => {
-  //   msg.service1.on(command, (data, comms) => {
-  //     expect(data.args[1]).toBe(testDataNumber);
-  //     comms.send(testDataNumberResponse);
-  //   });
-  //   return msg.service2.do(command, testDataNumber)
-  //     .then(response => {
-  //       expect(response).toStrictEqual(testDataNumberResponse);
-  //     });
-  // });
-
-  
-
-  // it('.do sends object data to .on and receives object answer', async() => {
-  //   msg.service1.on(command, (data, comms) => {
-  //     expect(data.args[1]).toStrictEqual(testDataObject);
-  //     comms.send(testDataObjectResponse);
-  //   });
-  //   return msg.service2.do(command, testDataObject)
-  //     .then(response => {
-  //       expect(response).toStrictEqual(testDataObjectResponse);
-  //     });
-  // });
-
-  
-
-  // it('.do sends array data to .on and receives array answer', async() => {
-  //   msg.service1.on(command, (data, comms) => {
-  //     expect(data.args[1]).toStrictEqual(testDataArray);
-  //     comms.send(testDataArrayResponse);
-  //   });
-  //   return msg.service2.do(command, testDataArray)
-  //     .then(response => {
-  //       expect(response).toStrictEqual(testDataArrayResponse);
-  //     });
-  // });
-
-  
 });

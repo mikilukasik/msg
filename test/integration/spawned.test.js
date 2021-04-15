@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { runOnMsgGateway, runOnMsgService } from '../harness';
+import { runOnMsgGateway, runOnMsgService } from '../helpers';
 
 describe('test on multiple spawned processes', () => {
   it('msgService.do can call msgGateway.on and gets the response', function(done) {

@@ -5,7 +5,7 @@ import { resolve } from 'path';
 
 export const startServer = ({ dirName, code, env = {}, cb: _cb }) => {
   env.testRunId = `${Date.now()}-${Math.random()}`.replace('/', '-');
-  const dirNameWithPrefix = `test/harness/${dirName}/`
+  const dirNameWithPrefix = `test/helpers/${dirName}/`
   const customCodePath = resolve(`test/_temp/customCode-${env.testRunId}.js`);
   const serverEntry = resolve(`${dirNameWithPrefix}server.js`);
   const envString = Object.keys(env).map(key => `${key}=${env[key]} `).join(' ');

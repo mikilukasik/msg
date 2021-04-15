@@ -4,10 +4,11 @@
   "description": "microservice communication helper",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test:integration",
+    "test": "npm run test:integration && npm run test:performance",
     "build-dev": "webpack --mode=development",
     "build": "webpack --mode=production",
-    "test:integration": "npx mocha --require esm --trace-warnings . test/integration"
+    "test:integration": "npx mocha --require esm --trace-warnings . test/integration",
+    "test:performance": "npx mocha --require esm --trace-warnings . test/performance"
   },
   "repository": {
     "type": "git",
