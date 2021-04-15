@@ -1,3 +1,5 @@
+const getRandomId = require('./getRandomId.js');
+
 var toStr = require('./toStr');
 
 module.exports = function slaveFunctionsCreator(msgOptions){
@@ -86,7 +88,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
           switch (cmd) {
 
           case 'do':
-            var newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + Math.random() * Math.random();
+            var newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
               
             msgOptions.conversations[newConversationId] = {
               startedBy: msg.owner,

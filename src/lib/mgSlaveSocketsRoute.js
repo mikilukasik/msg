@@ -1,3 +1,5 @@
+const getRandomId = require('./getRandomId.js');
+
 var toStr = require('./toStr');
 
 module.exports = function mgSlaceSocketRouteCreator(msgOptions){
@@ -55,7 +57,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
         break;
 
       case 'do':
-        var newConversationId = 'made-on-' + msgOptions.serviceLongName + '-' + Math.random() * Math.random();
+        var newConversationId = 'made-on-' + msgOptions.serviceLongName + '-' + getRandomId();
           
         msgOptions.conversations[newConversationId] = {
           startedBy: message.owner,

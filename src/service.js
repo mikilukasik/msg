@@ -1,3 +1,5 @@
+const getRandomId = require('./lib/getRandomId.js');
+
 module.exports = function createMsgService(optionalOptions){
   var DEV = ['development', 'dev'].indexOf( process.env.NODE_ENV ) >= 0 
 
@@ -52,7 +54,7 @@ module.exports = function createMsgService(optionalOptions){
     ws: new WebSocketClient(),
     PORT: 5000,
     serviceName: 'msgService',
-    serviceId: Math.random() * Math.random(),
+    serviceId: getRandomId(),
     myRules: {},
     mySocketRules: {},
     wsRoutes: {},

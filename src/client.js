@@ -1,3 +1,5 @@
+const getRandomId = require('./getRandomId.js');
+
 export const msgClient = (
   function createMsgService(optionalOptions) {
     // the below hack is needed do the client bundle can be built in consuming apps.
@@ -9,7 +11,7 @@ export const msgClient = (
     var msgOptions = {
       mySocketRules: {},
       waitingHandlersByConvId: {},
-      serviceName: 'client-' + Math.random() * Math.random(),
+      serviceName: 'client-' + getRandomId(),
       waitingCbsByConvId: {},
       waitingErrHandlersByConvId: {},
       wsRoutes: {},
@@ -92,7 +94,7 @@ export const msgClient = (
 
         function askGtw(command, data) {
           return new Promise(function (res3, rej3) {
-            var tempConversationId = Math.random().toString();
+            var tempConversationId = getRandomId();
             data.command = command;
             try {
               msgOptions.waitingCbsByConvId[tempConversationId] = function (reply) {
@@ -402,7 +404,7 @@ export const msgClient = (
     return msgClient;
   }
 )({
-  serviceName: 'client-' + Math.random(),
+  serviceName: 'client-' + getRandomId(),
   PORT: 9876,
   log: console.log,
 });

@@ -1,7 +1,9 @@
+const getRandomId = require('./getRandomId.js');
+
 var toStr = require('./toStr');
 
 const handleDo = ({ msgOptions, message, ws, key }) => {
-  const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + Math.random() * Math.random();
+  const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
   msgOptions.conversations[newConversationId] = {
     startedBy: message.owner,
     argObj: message.argObj,
@@ -146,7 +148,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         break;
 
       case 'wsDo':
-        var newWsConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + Math.random() * Math.random();
+        var newWsConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
 
         var clientConnection = msgOptions.publicSocketRoutes[message.route].connectedKeys[message.clientSocketKey]
         

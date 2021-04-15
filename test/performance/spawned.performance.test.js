@@ -2,6 +2,8 @@ import expect from 'expect';
 import { startServer } from '../helpers';
 
 const SHOW_LOGS_ON_CLEAN_EXIT = false;
+const THRESHOLD = -0.015;
+
 let nextPortBase = 20000;
 
 describe.only('spawned service <--> service: performance', () => {
@@ -10,14 +12,15 @@ describe.only('spawned service <--> service: performance', () => {
   });
 
   it('Completing full service to service cycles with small string data', function(done) {
-    this.timeout(20000);
+    this.timeout(10000);
     this.retries(4);
     let finishedServerCount = 0;
     const result = {};
 
     const validate = () => {
-      console.log(`master: ${result.master}, local: ${result.local}  -->  ${(((result.local / result.master) - 1) * 100).toFixed(2)}%`)
-      expect(result.local).toBeGreaterThanOrEqual(result.master);
+      const percentageDiff = (result.local / result.master) - 1;
+      console.log(`master: ${result.master}, local: ${result.local}  -->  ${percentageDiff > 0 ? '+' : ''}${(percentageDiff * 100).toFixed(2)}%`);
+      expect(percentageDiff).toBeGreaterThanOrEqual(THRESHOLD);
       done();
     };
 
@@ -68,14 +71,13 @@ describe.only('spawned service <--> service: performance', () => {
           completedCycles += 1;
           sendDo();
         });
-        setTimeout(sendDo, 300);
+        setTimeout(sendDo, 1000);
       },
       cb: ({ err, stdout, stderr, findInLogLines }) => {
         if (SHOW_LOGS_ON_CLEAN_EXIT) console.log(stdout);
         if (err) { console.error(stderr, stdout); throw err; }
 
         const completedCycles = findInLogLines('{ completedCycles:').match(/\d+/g).map(Number)[0];
-        console.log(`local branch completed ${completedCycles} cycles.`);
         result.local = completedCycles;
         if (finishedServerCount === 5) return validate();
         finishedServerCount += 1;
@@ -130,14 +132,13 @@ describe.only('spawned service <--> service: performance', () => {
           completedCycles += 1;
           sendDo();
         });
-        setTimeout(sendDo, 300);
+        setTimeout(sendDo, 1000);
       },
       cb: ({ err, stdout, stderr, findInLogLines }) => {
         if (SHOW_LOGS_ON_CLEAN_EXIT) console.log(stdout);
         if (err) { console.error(stderr, stdout); throw err; }
 
         const completedCycles = findInLogLines('{ completedCycles:').match(/\d+/g).map(Number)[0];
-        console.log(`master branch completed ${completedCycles} cycles.`);
         result.master = completedCycles;
         if (finishedServerCount === 5) return validate();
         finishedServerCount += 1;

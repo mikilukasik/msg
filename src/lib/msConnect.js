@@ -1,3 +1,5 @@
+const getRandomId = require('./getRandomId.js');
+
 module.exports = function connectCreator(msgOptions){
   return function connect(opts){
     return new Promise(function(connResolve, rej) {
@@ -20,7 +22,7 @@ module.exports = function connectCreator(msgOptions){
           msgOptions.log('WS connection closed, retry in 2s...');
 
           // TODO: this is some hack, i think we shouldn't have multiple concurrent timeouts here
-          const timeoutIdSuffix = Math.random(); 
+          const timeoutIdSuffix = getRandomId(); 
           if (!msgOptions.stopped) msgOptions.timeoutIds[`connetionOnCloseRetry-${timeoutIdSuffix}`] = setTimeout(function() {
             delete msgOptions.timeoutIds[`connetionOnCloseRetry-${timeoutIdSuffix}`];
             start('socket');

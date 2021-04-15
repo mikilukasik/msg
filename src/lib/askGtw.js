@@ -1,9 +1,11 @@
+const getRandomId = require('./getRandomId.js');
+
 module.exports = function askGtwCreator(msgOptions){
 
   return function askGtw(command, data){
     // msgOptions.log('in askGtw');
     return new Promise(function(res3, rej3){
-      var tempConversationId = Math.random().toString();
+      var tempConversationId = getRandomId();
       data.command = command;
       try {
         msgOptions.waitingCbsByConvId[tempConversationId] = function(reply) {

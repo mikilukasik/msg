@@ -1,3 +1,5 @@
+const getRandomId = require('./getRandomId.js');
+
 module.exports = function doCreator(msgOptions){
 
   return function (cmd1){ // function do(){}
@@ -23,7 +25,7 @@ module.exports = function doCreator(msgOptions){
       // send the command to connected service(s?)
       const socketRule = msgOptions.getSocketRule(argObj.cmd);
       if (socketRule) {
-        const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + Math.random() * Math.random();
+        const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
         msgOptions.conversations[newConversationId] = {
           startedBy: msgOptions.serviceLongName,
           argObj,

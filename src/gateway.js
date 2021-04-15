@@ -1,4 +1,6 @@
 
+const getRandomId = require('./lib/getRandomId.js');
+
 // set my public address to process.env.MSG_SLAVE_PUBLIC_ADDRESS
 module.exports = function createMsgGateway (options){
   // msgGateway
@@ -38,7 +40,7 @@ module.exports = function createMsgGateway (options){
   var getArgsCreator = require('./lib/getargs');
 
   var serviceName = options.serviceName || 'msg-gateway';
-  var serviceId = Math.random() * Math.random();
+  var serviceId = getRandomId();
 
   var msgOptions = {
     ips: options.ips,
