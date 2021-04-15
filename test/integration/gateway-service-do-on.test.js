@@ -4,27 +4,33 @@ import _msgGateway from '../../src/gateway';
 
 let msg;
 let testDataString;
+let testDataStringResponse;
 let testDataNumber;
+let testDataNumberResponse;
 let testDataObject;
+let testDataObjectResponse;
 let testDataArray;
+let testDataArrayResponse;
 
 let nextPortBase = 15000;
 
 const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
 
-describe('do & on', () => {
+describe('gateway <--> service: .do and .on, response with comms.send()', () => {
   beforeEach(async function() {
     nextPortBase += 10;
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
     testDataObject = { [testDataString]: testDataNumber };
     testDataArray = [testDataString, testDataObject];
+    testDataStringResponse = `some string ${Math.random()}`;
+    testDataNumberResponse = Math.random();
+    testDataObjectResponse = { [testDataStringResponse]: testDataNumberResponse };
+    testDataArrayResponse = [testDataStringResponse, testDataObjectResponse];
 
     const gatewayOptions = {
       port: nextPortBase,
       serviceName: `test-msg-gateway-${nextPortBase}`,
-      // log: () => {},
-      // TODO: remove this hack below once network package is gone
       ips: { public: '0.0.0.0' },
     };
 
@@ -32,8 +38,6 @@ describe('do & on', () => {
       port: nextPortBase + 1,
       serviceName: `test-msg-service-${nextPortBase + 1}`,
       gatewayAddress: `0.0.0.0:${nextPortBase}`,
-      // log: () => {},
-      // TODO: remove this hack below once network package is gone
       ips: { public: '0.0.0.0' },
     };
 
@@ -50,9 +54,6 @@ describe('do & on', () => {
     await _msg.gateway.start();
     await _msg.service.connect();
 
-    // gatewayOptions.log = getLogger('MSG GATEWAY:');
-    // serviceOptions.log = getLogger('MSG SERVICE:');
-
     msg = _msg;
   });
 
@@ -62,43 +63,107 @@ describe('do & on', () => {
     await msg.gateway.close();
   });
 
-  it('service.do sends string data to gateway.on', () => new Promise(async(done) => {
+  it('service.do sends string data to gateway.on and receives string answer', async() => {
     const command = 'testServiceDo2GatewayOnString';
-    msg.gateway.on(command, (data) => {
+    msg.gateway.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataString);
-      done();
+      comms.send(testDataStringResponse);
     });
     await new Promise(r => setTimeout(r, 5));
-    msg.service.do(command, testDataString);
-  }));
+    return msg.service.do(command, testDataString)
+      .then(response => {
+        expect(response).toStrictEqual(testDataStringResponse);
+      });
+  });
 
-  it('gateway.do sends string data to service.on', () => new Promise(async(done) => {
+  it('gateway.do sends string data to service.on and receives string answer', async() => {
     const command = 'testGatewayDo2ServiceOnString';
-    msg.service.on(command, (data) => {
+    msg.service.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataString);
-      done();
+      comms.send(testDataStringResponse);
     });
     await new Promise(r => setTimeout(r, 5));
-    msg.gateway.do(command, testDataString);
-  }));
+    return msg.gateway.do(command, testDataString)
+      .then(response => {
+        expect(response).toStrictEqual(testDataStringResponse);
+      });
+  });
 
-  it('service.do sends number data to gateway.on', () => new Promise(async(done) => {
+  it('service.do sends number data to gateway.on and receives number answer', async() => {
     const command = 'testServiceDo2GatewayOnNumber';
-    msg.gateway.on(command, (data) => {
+    msg.gateway.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataNumber);
-      done();
+      comms.send(testDataNumberResponse);
     });
     await new Promise(r => setTimeout(r, 5));
-    msg.service.do(command, testDataNumber);
-  }));
+    return msg.service.do(command, testDataNumber)
+      .then(response => {
+        expect(response).toStrictEqual(testDataNumberResponse);
+      });
+  });
 
-  it('gateway.do sends number data to service.on', () => new Promise(async(done) => {
+  it('gateway.do sends number data to service.on and receives number answer', async() => {
     const command = 'testGatewayDo2ServiceOnNumber';
-    msg.service.on(command, (data) => {
+    msg.service.on(command, (data, comms) => {
       expect(data.args[1]).toBe(testDataNumber);
-      done();
+      comms.send(testDataNumberResponse);
     });
     await new Promise(r => setTimeout(r, 5));
-    msg.gateway.do(command, testDataNumber);
-  }));
+    return msg.gateway.do(command, testDataNumber)
+      .then(response => {
+        expect(response).toStrictEqual(testDataNumberResponse);
+      });
+  });
+
+  it('service.do sends object data to gateway.on and receives object answer', async() => {
+    const command = 'testServiceDo2GatewayOnObject';
+    msg.gateway.on(command, (data, comms) => {
+      expect(data.args[1]).toStrictEqual(testDataObject);
+      comms.send(testDataObjectResponse);
+    });
+    await new Promise(r => setTimeout(r, 5));
+    return msg.service.do(command, testDataObject)
+      .then(response => {
+        expect(response).toStrictEqual(testDataObjectResponse);
+      });
+  });
+
+  it('gateway.do sends object data to service.on and receives object answer', async() => {
+    const command = 'testGatewayDo2ServiceOnObject';
+    msg.service.on(command, (data, comms) => {
+      expect(data.args[1]).toStrictEqual(testDataObject);
+      comms.send(testDataObjectResponse);
+    });
+    await new Promise(r => setTimeout(r, 5));
+    return msg.gateway.do(command, testDataObject)
+      .then(response => {
+        expect(response).toStrictEqual(testDataObjectResponse);
+      });
+  });
+
+  it('service.do sends array data to gateway.on and receives array answer', async() => {
+    const command = 'testServiceDo2GatewayOnArray';
+    msg.gateway.on(command, (data, comms) => {
+      expect(data.args[1]).toStrictEqual(testDataArray);
+      comms.send(testDataArrayResponse);
+    });
+    await new Promise(r => setTimeout(r, 5));
+    return msg.service.do(command, testDataArray)
+      .then(response => {
+        expect(response).toStrictEqual(testDataArrayResponse);
+      });
+  });
+
+  it('gateway.do sends array data to service.on and receives array answer', async() => {
+    const command = 'testGatewayDo2ServiceOnArray';
+    msg.service.on(command, (data, comms) => {
+      expect(data.args[1]).toStrictEqual(testDataArray);
+      comms.send(testDataArrayResponse);
+    });
+    await new Promise(r => setTimeout(r, 5));
+    return msg.gateway.do(command, testDataArray)
+      .then(response => {
+        expect(response).toStrictEqual(testDataArrayResponse);
+      });
+  });
 });
