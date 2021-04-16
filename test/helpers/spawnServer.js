@@ -1,9 +1,9 @@
-// this will start up a node server (subdir is in the type) and execute the custom code on that server.
+// this will start up a node server (subdir prefix is in the type) and execute the custom code on that server.
 import { exec } from 'child_process';
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-export const startServer = ({ type, code, env = {}, port, cb: _cb }) => {
+export const spawnServer = ({ type, code, env = {}, port, cb: _cb }) => {
   env.testRunId = `${Date.now()}-${Math.random()}`.replace('/', '-');
   env.port = port;
 

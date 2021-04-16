@@ -408,3 +408,5 @@ export const msgClient = (
   PORT: 9876,
   log: console.log,
 });
+
+if (typeof window !== 'undefined') window.msgClient = msgClient;

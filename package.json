@@ -7,7 +7,7 @@
     "test": "npm run test:integration && npm run test:performance",
     "build-dev": "webpack --mode=development",
     "build": "webpack --mode=production",
-    "test:integration": "npx mocha --require esm --trace-warnings . test/integration",
+    "test:integration": "NODE_ENV=test npm run build && npx mocha --require esm --trace-warnings . test/integration",
     "test:performance": "npm run test-dep:performance && npx mocha --require esm --trace-warnings . test/performance",
     "test-dep:performance": "cd ./test/_master_branch && npm run pull-and-install",
     "pull-and-install": "git pull && post-npm-install"
@@ -40,6 +40,7 @@
     "expect": "^26.6.2",
     "mocha": "^8.3.2",
     "post-npm-install": "^2.0.0",
+    "puppeteer": "^8.0.0",
     "webpack": "^5.31.2",
     "webpack-cli": "^4.6.0"
   }

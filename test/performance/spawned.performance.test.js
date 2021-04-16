@@ -1,12 +1,12 @@
 import expect from 'expect';
-import { startServer } from '../helpers';
+import { spawnServer } from '../helpers';
 
 const SHOW_LOGS_ON_CLEAN_EXIT = false;
 const THRESHOLD = -0.015;
 
 let nextPortBase = 20000;
 
-describe.only('spawned service <--> service: performance', () => {
+describe('spawned service <--> service: performance', () => {
   beforeEach(() => {
     nextPortBase += 20;
   });
@@ -24,7 +24,7 @@ describe.only('spawned service <--> service: performance', () => {
       done();
     };
 
-    startServer({
+    spawnServer({
       type: 'localGateway',
       port: nextPortBase,
       code: ({ msgGateway }) => {
@@ -38,7 +38,7 @@ describe.only('spawned service <--> service: performance', () => {
       }
     });
     
-    startServer({
+    spawnServer({
       type: 'localService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase}` },
       port: nextPortBase + 1,
@@ -54,7 +54,7 @@ describe.only('spawned service <--> service: performance', () => {
       }
     });
 
-    startServer({
+    spawnServer({
       type: 'localService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase}` },
       port: nextPortBase + 2,
@@ -85,7 +85,7 @@ describe.only('spawned service <--> service: performance', () => {
     });
 
 
-    startServer({
+    spawnServer({
       type: 'masterGateway',
       port: nextPortBase + 10,
       code: ({ msgGateway }) => {
@@ -99,7 +99,7 @@ describe.only('spawned service <--> service: performance', () => {
       }
     });
     
-    startServer({
+    spawnServer({
       type: 'masterService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase + 10}` },
       port: nextPortBase + 11,
@@ -115,7 +115,7 @@ describe.only('spawned service <--> service: performance', () => {
       }
     });
 
-    startServer({
+    spawnServer({
       type: 'masterService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase + 10}` },
       port: nextPortBase + 12,

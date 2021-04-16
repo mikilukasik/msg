@@ -2,3 +2,4 @@ node_modules
 dist
 test/_temp
 test/_master_branch
+test/helpers/clientHoster/public/msgClient.js

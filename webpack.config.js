@@ -7,7 +7,7 @@ module.exports = [{
   entry: './src/client.js',
   output: {
     // path: __dirname + '/js',
-    filename: './dist/msgClient.js'
+    filename: process.env.NODE_ENV === 'test' ? '../test/helpers/clientHoster/public/msgClient.js' : './msgClient.js'
   },
   plugins: debug ? [] : [
     new webpack.optimize.DedupePlugin(),

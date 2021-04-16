@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { startServer } from '../helpers';
+import { spawnServer } from '../helpers';
 
 let nextPortBase = 19000;
 
@@ -12,7 +12,7 @@ describe('test on multiple spawned processes', () => {
     this.timeout(10000);
     let oneFinished = false;
 
-    startServer({
+    spawnServer({
       type: 'localGateway',
       port: nextPortBase,
       code: ({ msgGateway, log }) => {
@@ -31,7 +31,7 @@ describe('test on multiple spawned processes', () => {
       }
     });
     
-    startServer({
+    spawnServer({
       type: 'localService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase}` },
       port: nextPortBase + 1,
@@ -53,7 +53,7 @@ describe('test on multiple spawned processes', () => {
     this.timeout(10000);
     let oneFinished = false;
 
-    startServer({
+    spawnServer({
       type: 'localGateway',
       port: nextPortBase,
       code: ({ msgGateway, log }) => {
@@ -72,7 +72,7 @@ describe('test on multiple spawned processes', () => {
       }
     });
     
-    startServer({
+    spawnServer({
       type: 'localService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase}` },
       port: nextPortBase + 1,

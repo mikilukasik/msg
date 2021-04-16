@@ -1,1 +1,2 @@
-export { startServer } from './startServer';
+export { spawnServer } from './spawnServer';
+export { getClient } from './getClient';
