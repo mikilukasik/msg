@@ -1,0 +1,3 @@
+[submodule "path_to_submodule"] 
+  path = test/_master_branch 
+  url = git://github.com/mikilukasik/msg
