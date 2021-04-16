@@ -1,4 +1,4 @@
-const getRandomId = require('./getRandomId.js');
+const getRandomId = require('./lib/getRandomId.js');
 
 export const msgClient = (
   function createMsgService(optionalOptions) {
