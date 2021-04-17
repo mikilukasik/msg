@@ -11,7 +11,6 @@ export const getClient = () => {
       hoster = clientHoster();
       await hoster.start();
       browser = await puppeteer.launch();
-      page = await browser.newPage();
     },
 
     stop: async() => {
@@ -19,11 +18,15 @@ export const getClient = () => {
       await hoster.stop();
     },
 
-    getRunner: async({ logger = console } = {}) => {
+    getNewPage: async({ logger = console } = {}) => {
+      page = await browser.newPage();
       if (logger) page.on('console', ({ _type, _text }) => (logger[_type] || logger)('client: ', _text))
       await page.goto('http://0.0.0.0:5678');
       const executionContext = await page.mainFrame().executionContext();
-      return executionContext.evaluate.bind(executionContext);
+      return {
+        page,
+        evaluate: executionContext.evaluate.bind(executionContext)
+      };
     },
   };
 };
