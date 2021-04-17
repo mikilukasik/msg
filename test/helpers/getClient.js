@@ -4,7 +4,6 @@ import { clientHoster } from './clientHoster';
 export const getClient = () => {
   let hoster;
   let browser;
-  let page;
 
   return {
     start: async() => {
@@ -19,7 +18,7 @@ export const getClient = () => {
     },
 
     getNewPage: async({ logger = console } = {}) => {
-      page = await browser.newPage();
+      const page = await browser.newPage();
       if (logger) page.on('console', ({ _type, _text }) => (logger[_type] || logger)('client: ', _text))
       await page.goto('http://0.0.0.0:5678');
       const executionContext = await page.mainFrame().executionContext();

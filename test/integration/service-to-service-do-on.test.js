@@ -67,8 +67,7 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
     msg = _msg;
   });
 
-  afterEach(async function() {
-    this.timeout(10000);
+  afterEach(async() => {
     await msg.service1.close();
     await msg.service2.close();
     await msg.gateway.close();
@@ -84,7 +83,6 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
         expect(response).toStrictEqual(testDataStringResponse);
       });
   });
-
   
   it('.do sends number data to .on and receives number answer', async() => {
     msg.service1.on(command, (data, comms) => {
@@ -97,8 +95,6 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
       });
   });
 
-  
-
   it('.do sends object data to .on and receives object answer', async() => {
     msg.service1.on(command, (data, comms) => {
       expect(data.args[1]).toStrictEqual(testDataObject);
@@ -110,8 +106,6 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
       });
   });
 
-  
-
   it('.do sends array data to .on and receives array answer', async() => {
     msg.service1.on(command, (data, comms) => {
       expect(data.args[1]).toStrictEqual(testDataArray);
@@ -122,6 +116,4 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
         expect(response).toStrictEqual(testDataArrayResponse);
       });
   });
-
-  
 });
