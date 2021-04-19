@@ -2,10 +2,11 @@ import expect from 'expect';
 import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 import { getClient } from '../helpers';
+import { response } from 'express';
 
-const SHOW_CLIENT_LOGS = false;
-const SHOW_GATEWAY_LOGS = false;
-const SHOW_SERVICE_LOGS = false;
+const SHOW_CLIENT_LOGS = true;
+const SHOW_GATEWAY_LOGS = true;
+const SHOW_SERVICE_LOGS = true;
 
 let client;
 let msg;
@@ -86,7 +87,7 @@ describe('client .do and .on, response with comms.send()', () => {
     await client.stop();
   });
 
-  it('client.do sends data to gateway.on and receives answer', async() => {
+  it('client.do sends data to service.on and receives answer', async() => {
     const serviceSocket = msg.service.ws(socketRoute);
     serviceSocket.on(`${command}-string`, (data, comms) => {
       expect(data.args[1]).toBe(testDataString);
@@ -139,6 +140,82 @@ describe('client .do and .on, response with comms.send()', () => {
     ]);
   });
 
+  xit('client.do service.on in-flight data', async() => {
+    const serviceSocket = msg.service.ws(socketRoute);
+
+    const serviceReceived = []
+    // await new Promise((resolve) => {
+    const dealWithData = (data) => {
+      serviceReceived.push(data);
+      if (serviceReceived.length === 4) return resolve(serviceReceived);
+    };
+
+    const responses = [
+      testDataStringResponse,
+      testDataNumberResponse,
+      testDataObjectResponse,
+      testDataArrayResponse,
+    ];
+
+    serviceSocket.on(`${command}`, (data, comms) => {
+      comms.onData((data) => {
+        comms.data(responses.shift());
+        dealWithData(data);
+      })
+    });
+    // });
+
+    const clientReceived = await msg.runOnClient(({
+      nextPortBase,
+      socketRoute,
+      command,
+      testDataString,
+      testDataNumber,
+      testDataObject,
+      testDataArray,
+    }) => new Promise((resolve) => {
+      const result = [];
+      const dealWithData = (data) => {
+        result.push(data);
+        if (result.length === 4) return resolve(result);
+      }
+      
+      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+      testSocket.do(command, {}, (comms) => {
+        comms.onData((data) => {
+          dealWithData(data);
+        });
+
+        comms.data(testDataString);
+        comms.data(testDataNumber);
+        comms.data(testDataObject);
+        comms.data(testDataArray);
+      });
+    }), {
+      nextPortBase,
+      socketRoute,
+      command,
+      testDataString,
+      testDataNumber,
+      testDataObject,
+      testDataArray,
+    });
+
+    expect(serviceReceived).toStrictEqual([
+      testDataStringResponse,
+      testDataNumberResponse,
+      testDataObjectResponse,
+      testDataArrayResponse,
+    ]);
+
+    expect(clientReceived).toStrictEqual([
+      testDataString,
+      testDataNumber,
+      testDataObject,
+      testDataArray,
+    ]);
+  });
+
   it('service.connection.do sends data to client.on and receives answer', async() => {
     const serviceSocket = msg.service.ws(socketRoute);
 
@@ -177,13 +254,9 @@ describe('client .do and .on, response with comms.send()', () => {
       nextPortBase,
       socketRoute,
       command,
-      testDataString,
       testDataStringResponse,
-      testDataNumber,
       testDataNumberResponse,
-      testDataObject,
       testDataObjectResponse,
-      testDataArray,
       testDataArrayResponse,
     });
 
@@ -202,6 +275,92 @@ describe('client .do and .on, response with comms.send()', () => {
       connection.do(`${command}-object`, testDataObject),
       connection.do(`${command}-array`, testDataArray),
     ]);
+
+    expect(serviceResponse).toStrictEqual([
+      testDataStringResponse,
+      testDataNumberResponse,
+      testDataObjectResponse,
+      testDataArrayResponse,
+    ]);
+
+    const clientResponse = await clientResponsePromise;
+    expect(clientResponse).toStrictEqual([
+      testDataString,
+      testDataNumber,
+      testDataObject,
+      testDataArray,
+    ]);
+  });
+
+  // doesn't seem to be implemented
+  xit('service.connection.do client.on in-flight data', async() => {
+    const serviceSocket = msg.service.ws(socketRoute);
+
+    const clientResponsePromise = msg.runOnClient(({
+      nextPortBase,
+      socketRoute,
+      command,
+      testDataStringResponse,
+      testDataNumberResponse,
+      testDataObjectResponse,
+      testDataArrayResponse,
+    }) => new Promise((resolve) => {
+      const result = [];
+      const dealWithData = (data) => {
+        result.push(data);
+        if (result.length === 4) return resolve(result);
+      }
+      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+      const responses = [
+        testDataStringResponse,
+        testDataNumberResponse,
+        testDataObjectResponse,
+        testDataArrayResponse,
+      ];
+      testSocket.on(`${command}`, (data, comms) => {
+        comms.onData((data) => {
+          dealWithData(data);
+          comms.data(responses.shift());
+        });
+      });
+    }), {
+      nextPortBase,
+      socketRoute,
+      command,
+      testDataStringResponse,
+      testDataNumberResponse,
+      testDataObjectResponse,
+      testDataArrayResponse,
+    });
+
+    const connection = await new Promise((res) => {
+      const getConnection = () => {
+        const c = serviceSocket.connections.pop();
+        if (c) return res(c);
+        setTimeout(getConnection, 20);
+      };
+      getConnection();
+    });
+
+    const serviceResponse = await new Promise((resolve) => {
+      const result = [];
+      const dealWithData = (data) => {
+        result.push(data);
+        if (result.length === 4) return resolve(result);
+      }
+
+      connection.do(command, {}, (comms) => {
+        comms.onData((data) => {
+          dealWithData(data);
+        });
+
+        comms.data(testDataString);
+        comms.data(testDataNumber);
+        comms.data(testDataObject);
+        comms.data(testDataArray);
+      });
+    });
+
 
     expect(serviceResponse).toStrictEqual([
       testDataStringResponse,
