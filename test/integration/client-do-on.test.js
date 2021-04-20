@@ -4,9 +4,9 @@ import _msgGateway from '../../src/gateway';
 import { getClient } from '../helpers';
 import { response } from 'express';
 
-const SHOW_CLIENT_LOGS = true;
-const SHOW_GATEWAY_LOGS = true;
-const SHOW_SERVICE_LOGS = true;
+const SHOW_CLIENT_LOGS = false;
+const SHOW_GATEWAY_LOGS = false;
+const SHOW_SERVICE_LOGS = false;
 
 let client;
 let msg;
