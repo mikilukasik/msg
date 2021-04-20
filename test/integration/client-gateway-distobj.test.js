@@ -4,7 +4,7 @@ import _msgGateway from '../../src/gateway';
 import { getClient } from '../helpers';
 import { msgClient } from '../../src/client';
 
-const SHOW_CLIENT_LOGS = true;
+const SHOW_CLIENT_LOGS = false;
 const SHOW_GATEWAY_LOGS = false;
 const SHOW_SERVICE_LOGS = false;
 
