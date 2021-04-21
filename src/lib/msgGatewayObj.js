@@ -34,6 +34,8 @@ module.exports = function msgGatewayObjCreator(msgOptions){
       msgOptions.log(`Msg gateway ${msgOptions.serviceName} closed.`);
       res();
     });
+    setImmediate(function(){msgOptions.expressServer.emit('close')});
+
     for(const client of msgOptions.expressWs.getWss().clients) client.close();
   });
 

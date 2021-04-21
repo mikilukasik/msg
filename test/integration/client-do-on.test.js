@@ -2,7 +2,6 @@ import expect from 'expect';
 import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 import { getClient } from '../helpers';
-import { response } from 'express';
 
 const SHOW_CLIENT_LOGS = false;
 const SHOW_GATEWAY_LOGS = false;

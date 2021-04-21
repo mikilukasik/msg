@@ -32,6 +32,8 @@ module.exports = function msgServiceObjCreator(msgOptions){
       msgOptions.log(`Msg service ${msgOptions.serviceName} closed.`);
     res();
     });
+    setImmediate(function(){msgOptions.expressServer.emit('close')});
+
   });
 
   return msgService;
