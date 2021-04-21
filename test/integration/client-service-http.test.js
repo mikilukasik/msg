@@ -1,10 +1,11 @@
 import expect from 'expect';
 import cors from 'cors';
+import path from 'path';
 import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 import { getClient } from '../helpers';
 
-const SHOW_CLIENT_LOGS = false;
+const SHOW_CLIENT_LOGS = true;
 const SHOW_GATEWAY_LOGS = false;
 const SHOW_SERVICE_LOGS = false;
 
@@ -36,6 +37,26 @@ describe('client to service http', () => {
     expect(clientResponse).toStrictEqual({ test: 'test' });
   });
   
+  it('service can serve static assets through the gateway', async() => {
+    msg.service.app.use(cors());
+    msg.service.static(`${testPath}`, path.resolve('.'));
+
+    const clientResponse = await msg.runOnClient(async({
+      nextPortBase,
+      testPath,
+    }) => ({
+      package: await (await fetch(`http://0.0.0.0:${nextPortBase}${testPath}/package.json`)).text(),
+      thisTest: await (await fetch(`http://0.0.0.0:${nextPortBase}${testPath}/test/integration/client-service-http.test.js`)).text(),
+    }), {
+      nextPortBase,
+      testPath,
+    });
+    
+    expect(/"name": "msg",/.test(clientResponse.package)).toBeTruthy();
+    expect(/we will match this line/.test(clientResponse.thisTest)).toBeTruthy();
+  });
+  
+
   before(async() => {
     client = getClient();
     await client.start();
