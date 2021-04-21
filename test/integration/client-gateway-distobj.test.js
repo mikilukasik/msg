@@ -88,6 +88,8 @@ describe('client <--> service distObj', () => {
     const serviceDistObj = serviceSocket.distObj(distObjName);
     serviceDistObj.data.testKey = { root: { deepData: 5 }};
 
+    await new Promise(r => setTimeout(r, 250));
+
     const clientFirstResponse = await msg.runOnClient(async({
       nextPortBase,
       socketRoute,
@@ -109,7 +111,7 @@ describe('client <--> service distObj', () => {
     });
 
     // TODO: this already fails here
-    expect(clientFirstResponse).toStrictEqual({ root: { deepData: 5 }});
+    expect(clientFirstResponse).toStrictEqual({ testKey: { root: { deepData: 5 } } });
 
     serviceDistObj.data.testKey.root.deepData = 'secondData';
 
