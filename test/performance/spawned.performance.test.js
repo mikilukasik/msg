@@ -1,8 +1,9 @@
 import expect from 'expect';
 import { spawnServer } from '../helpers';
 
+const TEST_LENGTH = Number(process.env.PERFORMANCE_TEST_LENGTH) || 5000;
 const SHOW_LOGS_ON_CLEAN_EXIT = false;
-const THRESHOLD = -0.015;
+const THRESHOLD = Number(process.env.PERFORMANCE_TEST_THRESHOLD) || -0.015;
 
 let nextPortBase = 20000;
 
@@ -12,7 +13,7 @@ describe('spawned service <--> service: performance', () => {
   });
 
   it('Completing full service to service cycles with small string data', function(done) {
-    this.timeout(10000);
+    this.timeout(TEST_LENGTH + 5000);
     this.retries(4);
     let finishedServerCount = 0;
     const result = {};
@@ -42,7 +43,7 @@ describe('spawned service <--> service: performance', () => {
       type: 'localService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase}` },
       port: nextPortBase + 1,
-      code: ({ msgService, log }) => {
+      code: ({ msgService }) => {
         msgService.on('socketTest', (data, comms) => { comms.send({ success: true }); });
         msgService.on('closeService', (data, comms) => { comms.send('ok'); setTimeout(msgService.close, 300); });
       },
@@ -56,10 +57,10 @@ describe('spawned service <--> service: performance', () => {
 
     spawnServer({
       type: 'localService',
-      env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase}` },
+      env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase}`, TEST_LENGTH },
       port: nextPortBase + 2,
-      code: ({ msgService, log }) => {
-        const endBeforeTimestamp = Date.now() + 5000;
+      code: ({ msgService, log, TEST_LENGTH }) => {
+        const endBeforeTimestamp = Date.now() + TEST_LENGTH;
         let completedCycles = 0;
         const sendDo = () => msgService.do('socketTest', 'testDataString').then(() => {
           if (Date.now() > endBeforeTimestamp) {
@@ -103,11 +104,11 @@ describe('spawned service <--> service: performance', () => {
       type: 'masterService',
       env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase + 10}` },
       port: nextPortBase + 11,
-      code: ({ msgService, log }) => {
+      code: ({ msgService }) => {
         msgService.on('socketTest', (data, comms) => { comms.send({ success: true }); });
         msgService.on('closeService', (data, comms) => { comms.send('ok'); setTimeout(msgService.close, 300); });
       },
-      cb: ({ err, stdout, stderr, findInLogLines }) => {
+      cb: ({ err, stdout, stderr }) => {
         if (SHOW_LOGS_ON_CLEAN_EXIT) console.log(stdout);
         if (err) { console.error(stderr, stdout); throw err; }
         if (finishedServerCount === 5) return validate();
@@ -117,10 +118,10 @@ describe('spawned service <--> service: performance', () => {
 
     spawnServer({
       type: 'masterService',
-      env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase + 10}` },
+      env: { MSG_ADDRESS: `0.0.0.0:${nextPortBase + 10}`, TEST_LENGTH },
       port: nextPortBase + 12,
-      code: ({ msgService, log }) => {
-        const endBeforeTimestamp = Date.now() + 5000;
+      code: ({ msgService, log, TEST_LENGTH }) => {
+        const endBeforeTimestamp = Date.now() + TEST_LENGTH;
         let completedCycles = 0;
         const sendDo = () => msgService.do('socketTest', 'testDataString').then(() => {
           if (Date.now() > endBeforeTimestamp) {

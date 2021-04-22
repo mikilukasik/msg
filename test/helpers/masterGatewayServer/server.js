@@ -11,5 +11,5 @@ const msgGateway = _msgGateway({
 });
 
 msgGateway.start().then(() => {
-  customCode({ log: console.log, msgGateway });
+  customCode({ log: console.log, msgGateway, TEST_LENGTH: Number(process.env.TEST_LENGTH) });
 });

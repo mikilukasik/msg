@@ -9,6 +9,8 @@
     "build": "webpack --mode=production",
     "test:integration": "NODE_ENV=test npm run build && npx mocha --require esm --trace-warnings . test/integration",
     "test:performance": "npm run test-dep:performance && npx mocha --require esm --trace-warnings . test/performance",
+    "test:performance-1m": "npm run test-dep:performance && PERFORMANCE_TEST_LENGTH=60000 PERFORMANCE_TEST_THRESHOLD=-0.0075 npx mocha --require esm --trace-warnings . test/performance",
+    "test:performance-5m": "npm run test-dep:performance && PERFORMANCE_TEST_LENGTH=300000 PERFORMANCE_TEST_THRESHOLD=-0.002 npx mocha --require esm --trace-warnings . test/performance",
     "test-dep:performance": "cd ./test/_master_branch && npm run pull-and-install",
     "pull-and-install": "git pull && post-npm-install"
   },

@@ -11,6 +11,6 @@ const msgService = _msgService({
 });
 
 msgService.connect().then(() => {
-  customCode({ log: console.log, msgService });
+  customCode({ log: console.log, msgService, TEST_LENGTH: Number(process.env.TEST_LENGTH) });
 });
 
