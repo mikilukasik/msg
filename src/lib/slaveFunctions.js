@@ -134,7 +134,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
         }
 
         if (message.command === 'do'){
-          var cmd = message.argObj.cmd;
+          var cmd = message.argObj.command;
           var clientSocketRoute = message.clientSocketRoute;
 
           msgOptions.conversations[message.conversationId] = {

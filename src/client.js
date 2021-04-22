@@ -169,8 +169,8 @@ export const msgClient = (
             msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
           },
           do: function (message) {
-            var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
-            var newArgObj = getArgs(message.argObj.args);
+            var thisHandler = msgOptions.mySocketRules[message.argObj.command].cb;
+            var newArgObj = message.argObj;
             thisHandler(newArgObj, {
               message: message,
               conversationId: message.conversationId,
@@ -212,7 +212,7 @@ export const msgClient = (
             errorHandler: function (e) { msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!'); },
           };
 
-          if (argObj.cb) {
+          if (argObj.handler) {
 
             var comms = {
               // TODO: this comms object needs data function, and a lot more. this is very weak.....
@@ -220,7 +220,7 @@ export const msgClient = (
                 handlers.dataHandler = onDataCb;
               }
             };
-            argObj.cb(comms);
+            argObj.handler(comms);
           }
 
           return new Promise(function (res, rej) {
@@ -349,9 +349,9 @@ export const msgClient = (
           console.log('signing up for $$MSG_DISTOBJ_CHANGE_' + options.name); 
           objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, {}, function (argObj, comms) {
 
-            const prop = argObj.cmdArgs.prop;
-            const value = argObj.cmdArgs.value;
-            const deleted = argObj.cmdArgs.deleted;
+            const prop = argObj.data.prop;
+            const value = argObj.data.value;
+            const deleted = argObj.data.deleted;
 
             options.store[prop] = value;
             if (deleted) delete options.store[prop];

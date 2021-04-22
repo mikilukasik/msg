@@ -110,7 +110,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
             }));
 
             try{
-              (getRule(msg.argObj.cmd) || (getRule(msg.argObj.cmd.split('\\')[0] + '_$$MSG_NEW')) || {ws:{send: (jsStr) => {
+              (getRule(msg.argObj.command) || (getRule(msg.argObj.command.split('\\')[0] + '_$$MSG_NEW')) || {ws:{send: (jsStr) => {
                 const message2 = 'ERROR: Unknown command from ' + msg.owner + ': ' + (jsStr);
                 log(message2);
                 throw new Error(message2);

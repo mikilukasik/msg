@@ -3,7 +3,7 @@ module.exports = function createHttpRuleCreator(msgOptions){
   return function createHttpRule(argObj, method, rule = {}){
     rule.method = method;
     var pOptions = {
-      url: argObj.cmd
+      url: argObj.command
     };
 
     if (pOptions.url[0] === '/'){
@@ -21,7 +21,9 @@ module.exports = function createHttpRuleCreator(msgOptions){
     // register hhtp rule in local express
     try{
       var thisFunc = msgOptions.app[ method ];
-      thisFunc.bind(msgOptions.app)(rule.outPath, ...argObj.cbs); //app.get(url, (req, res) => {})
+
+      // TODO: multiple handlers (mw) should be implemented
+      thisFunc.bind(msgOptions.app)(rule.outPath, argObj.handler); //app.get(url, (req, res) => {})
     } catch(e){msgOptions.log('EXPRESS could not create route: ' + rule.outPath, e.message, e.stack);}
     return rule;
   };

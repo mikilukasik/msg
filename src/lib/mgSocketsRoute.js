@@ -17,11 +17,11 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
     tempConversationId: message.tempConversationId
   }));
 
-  if (msgOptions.mySocketRules[message.argObj.cmd]) {
-    // log('gateway received do cmd ' + message.argObj.cmd + ' from ' + message.owner);
+  if (msgOptions.mySocketRules[message.argObj.command]) {
+    // log('gateway received do cmd ' + message.argObj.command + ' from ' + message.owner);
 
-    var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
-    var newArgObj = msgOptions.getArgs(message.argObj.args);
+    var thisHandler = msgOptions.mySocketRules[message.argObj.command].cb;
+    var newArgObj = message.argObj;
 
     thisHandler(newArgObj, {
       key: key,
@@ -68,7 +68,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
   }
 
   try {
-    (msgOptions.getSocketRule(message.argObj.cmd) ||
+    (msgOptions.getSocketRule(message.argObj.command) ||
       {
         ws: {
           send: (jsStr) => {

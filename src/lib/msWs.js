@@ -79,9 +79,9 @@ module.exports = function wsCreator(msgOptions){
 
       on('$$MSG_DISTOBJ_CHANGE_' + options.name, {}, function(argObj, comms){
 
-        const prop = argObj.cmdArgs.prop;
-        const value = argObj.cmdArgs.value;
-        const deleted = argObj.cmdArgs.deleted;
+        const prop = argObj.data.prop;
+        const value = argObj.data.value;
+        const deleted = argObj.data.deleted;
 
         options.store[prop] = value;
         if (deleted) delete options.store[prop];
@@ -130,7 +130,7 @@ module.exports = function wsCreator(msgOptions){
         }
 
         
-        Object.assign(data, argObj.cmdArgs.value);
+        Object.assign(data, argObj.data.value);
         comms.send(data);
         Object.keys(data).forEach(k => checkVal(options.name + '\\' + k, data[k]));
 
@@ -148,23 +148,23 @@ module.exports = function wsCreator(msgOptions){
       });
 
       on('$$MSG_GET_DISTOBJ_' + options.name + '_$$MSG_NEW', {}, function(argObj, comms){
-        const split = argObj.cmdArgs.name.split('\\');
+        const split = argObj.data.name.split('\\');
         const newProp = split.pop();
         const distObjName = split.join('\\');
 
-        if (!msgOptions.wsRoutes[route].distObjs[distObjName][newProp]) msgOptions.wsRoutes[route].distObjs[distObjName][newProp] = argObj.cmdArgs.value;
-        // Object.assign(msgOptions.wsRoutes[route].distObjs[distObjName][newProp], argObj.cmdArgs.value);
+        if (!msgOptions.wsRoutes[route].distObjs[distObjName][newProp]) msgOptions.wsRoutes[route].distObjs[distObjName][newProp] = argObj.data.value;
+        // Object.assign(msgOptions.wsRoutes[route].distObjs[distObjName][newProp], argObj.data.value);
         
         comms.connection.followingDistObjs = Object.assign(
           {},
           comms.connection.followingDistObjs,
-          {[argObj.cmdArgs.name]: true}
+          {[argObj.data.name]: true}
         );
 
 
 
         comms.send(msgOptions.wsRoutes[route].distObjs[distObjName][newProp]);
-        options.onNew.forEach(fn => fn({argObj, connection: comms.connection, newName: argObj.cmdArgs.name, newProp}));
+        options.onNew.forEach(fn => fn({argObj, connection: comms.connection, newName: argObj.data.name, newProp}));
       });
 
       const onChange = function(fn){

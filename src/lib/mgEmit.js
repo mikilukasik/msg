@@ -7,7 +7,7 @@ module.exports = function emitCreator(msgOptions){
     if (!argObj.emitId) argObj.emitId = 'emit' + (getRandomId());
     return new Promise(function(res, rej){
       var rule = msgOptions.createRule(argObj);
-      var subscribers = (msgOptions.subscriptions[argObj.cmd] || []);
+      var subscribers = (msgOptions.subscriptions[argObj.command] || []);
 
       let subI = subscribers.length;
       while (subI--) {

@@ -10,7 +10,7 @@ module.exports = function doCreator(msgOptions){
       errorHandler: function(e){msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!');},
     };
 
-    if(argObj.cb){
+    if(argObj.handler){
 
       var comms = {
         // TODO: very poor comms object here
@@ -18,12 +18,12 @@ module.exports = function doCreator(msgOptions){
           handlers.dataHandler = onDataCb;
         }
       };
-      argObj.cb(comms);
+      argObj.handler(comms);
     }
 
     return new Promise(function(res, rej){
       // send the command to connected service(s?)
-      const socketRule = msgOptions.getSocketRule(argObj.cmd);
+      const socketRule = msgOptions.getSocketRule(argObj.command);
       if (socketRule) {
         const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
         msgOptions.conversations[newConversationId] = {

@@ -11,7 +11,7 @@ module.exports = function myCallbacksCreator(msgOptions){
             errorHandler: function(e){msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!');},
           };
 
-          if(argObj.cb){
+          if(argObj.handler){
             var comms = {
               onData: function (onDataCb) {
                 handlers.dataHandler = onDataCb;
@@ -22,7 +22,7 @@ module.exports = function myCallbacksCreator(msgOptions){
               //   });
               // },
             };
-            argObj.cb(comms);
+            argObj.handler(comms);
           }
 
           return new Promise(function(res, rej){
@@ -91,15 +91,15 @@ module.exports = function myCallbacksCreator(msgOptions){
       delete msgOptions.waitingErrHandlersByConvId[message.conversationId];
     },
     do: function(message){
-      var thisRule = msgOptions.mySocketRules[message.argObj.cmd];
+      var thisRule = msgOptions.mySocketRules[message.argObj.command];
       if (!thisRule) {
-        const split = message.argObj.cmd.split('\\');
+        const split = message.argObj.command.split('\\');
         message.argObj.$$MSG_NEW = split[1];
-        message.argObj.cmd = split[0] + '_$$MSG_NEW';
-        thisRule = msgOptions.mySocketRules[message.argObj.cmd];
+        message.argObj.command = split[0] + '_$$MSG_NEW';
+        thisRule = msgOptions.mySocketRules[message.argObj.command];
       }
       var thisHandler = thisRule.cb;
-      var newArgObj = msgOptions.getArgs(message.argObj.args);
+      var newArgObj = message.argObj;
 
       if (Array.isArray(thisHandler)) {
         console.log('array as handler');

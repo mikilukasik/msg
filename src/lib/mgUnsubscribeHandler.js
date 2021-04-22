@@ -10,7 +10,7 @@ module.exports = function handlerCreator(msgOptions) {
   // };
 
   var handler = function(argObj, comms){
-    var event = argObj.cmdArgs.event;
+    var event = argObj.data.event;
     
     var i = (msgOptions.subscriptions[event] || []).length;
     while (i--) {

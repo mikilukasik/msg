@@ -22,7 +22,7 @@ module.exports = function handlerCreator(msgOptions) {
   };
 
   var handler = function(argObj, comms){
-    var event = argObj.cmdArgs.event;
+    var event = argObj.data.event;
     if (!event || event === 'undefined') log( new Error('event cannot be undefined') )
 
     if(!msgOptions.subscriptions[event]) {

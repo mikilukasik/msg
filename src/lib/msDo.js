@@ -8,7 +8,7 @@ module.exports = function doCreator(msgOptions){
       errorHandler: function(e){msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!');},
     };
 
-    if(argObj.cb){
+    if(argObj.handler){
 
       var comms = {
         onData: function (onDataCb) {
@@ -19,7 +19,7 @@ module.exports = function doCreator(msgOptions){
         }
       };
 
-      argObj.cb(comms);
+      argObj.handler(comms);
 
     }
 

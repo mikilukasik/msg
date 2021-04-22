@@ -5,7 +5,7 @@ module.exports = function onCreator(msgOptions){
     return new Promise(function(res, rej){
       var rule = msgOptions.createSocketRule(argObj);
 
-      // msgOptions.mgDoHandlers[argObj.cmd] = argObj      
+      // msgOptions.mgDoHandlers[argObj.command] = argObj      
 
 
       msgOptions.log('TODO: in mgon, rule');
@@ -20,7 +20,7 @@ module.exports = function onCreator(msgOptions){
       return new Promise(function(res, rej){
         var rule = msgOptions.createHttpRule(argObj, method);
   
-        // msgOptions.mgDoHandlers[argObj.cmd] = argObj      
+        // msgOptions.mgDoHandlers[argObj.command] = argObj      
   
   
         msgOptions.log('TODO: in mgon, rule');

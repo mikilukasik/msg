@@ -80,10 +80,10 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
           key,
         }));
 
-        if (msgOptions.mySocketRules[message.data.argObj.cmd]) {
+        if (msgOptions.mySocketRules[message.data.argObj.command]) {
 
-          var thisHandler = msgOptions.mySocketRules[message.data.argObj.cmd].cb;
-          var newArgObj = msgOptions.getArgs(message.data.argObj.args);
+          var thisHandler = msgOptions.mySocketRules[message.data.argObj.command].cb;
+          var newArgObj = message.data.argObj;
 
           thisHandler(newArgObj, {
 
@@ -127,7 +127,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
         } 
 
         try{
-          (msgOptions.getSocketRule(message.argObj.cmd) || {ws:{send: (jsStr) => {
+          (msgOptions.getSocketRule(message.argObj.command) || {ws:{send: (jsStr) => {
             log('ERROR: Unknown slave command from ' + message.owner + ': ', JSON.parse(jsStr));
           }}}).ws.send(JSON.stringify({
             command: 'do',
