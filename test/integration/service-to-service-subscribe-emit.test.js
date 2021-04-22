@@ -63,7 +63,7 @@ describe('service <--> service: .subscribe and .emit', () => {
 
   xit('service.emit sends data that service.subscribe receives', (done) => {
     msg.service1.subscribe(command, (data) => {
-      expect(data.argObj.data).toBe(testDataString);
+      expect(data).toBe(testDataString);
       done();
     });
 
@@ -72,7 +72,7 @@ describe('service <--> service: .subscribe and .emit', () => {
 
   it('gateway.emit sends data that service.subscribe receives', (done) => {
     msg.service1.subscribe(command, (data) => {
-      expect(data.argObj.data).toBe(testDataString);
+      expect(data).toBe(testDataString);
       done();
     });
 
@@ -87,12 +87,12 @@ describe('service <--> service: .subscribe and .emit', () => {
     };
     
     msg.service1.subscribe(command, (data) => {
-      expect(data.argObj.data).toBe(testDataString);
+      expect(data).toBe(testDataString);
       registerCall();
     });
 
     msg.service2.subscribe(command, (data) => {
-      expect(data.argObj.data).toBe(testDataString);
+      expect(data).toBe(testDataString);
       registerCall();
     });
 
