@@ -3,11 +3,11 @@ module.exports = function handlerCreator(msgOptions) {
   
   var cmd = 'msg:subscribe';
   
-  var configObj = {
-    keys: [
-      'event',
-    ],
-  };
+  // var configObj = {
+  //   keys: [
+  //     'event',
+  //   ],
+  // };
 
   var processedEmitIds = {};
   var isNewEmitId = function (id) {
@@ -55,5 +55,5 @@ module.exports = function handlerCreator(msgOptions) {
 
   };
 
-  return [cmd, configObj, handler];
+  return [cmd, handler];
 };

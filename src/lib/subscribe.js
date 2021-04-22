@@ -9,7 +9,7 @@ module.exports = function subscribeCreator(msgOptions){
       cb: argObj.cb
     };
 
-    return msgOptions.obj.do('msg:subscribe -e ' + argObj.cmd, function(comms){
+    return msgOptions.obj.do('msg:subscribe', { event: argObj.cmd }, function(comms){
       comms.onData(function(data){
         msgOptions.subscribedTo[argObj.cmd].cb(data);
       });

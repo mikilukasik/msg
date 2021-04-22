@@ -52,7 +52,7 @@ module.exports = function connectCreator(msgOptions){
         
         // send all my subscriptions to gtw
         Object.keys(msgOptions.subscribedTo).forEach(function(sub){
-          msgOptions.obj.do('msg:subscribe -e ' + sub.cmd, function(comms){
+          msgOptions.obj.do('msg:subscribe', { event: sub.cmd }, function(comms){
             comms.onData(function(data){ sub.cb(data); });
           });
         });

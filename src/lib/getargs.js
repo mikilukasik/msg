@@ -12,8 +12,11 @@ module.exports = function getArgsCreator(globOpts){
     }
   }
 
-  return function getArgs(a, keys){
-    if (!keys) keys = globOpts.keys;
+  return function getArgs(a){
+
+    console.log({ a })
+
+    // if (!keys) keys = globOpts.keys;
     var len = Object.keys(a).length;
     var args = [];
     for (var j = 0; j < len; j += 1){args.push(a[j]);}
@@ -66,19 +69,19 @@ module.exports = function getArgsCreator(globOpts){
         var altKey = '';
 
         // found switch, check for long switch name
-        if (keys && keys.forEach) {
-          if (keys.indexOf(key) < 0){
+        // if (keys && keys.forEach) {
+        //   if (keys.indexOf(key) < 0){
 
-            // switch name is not in list, look for match
-            var x = keys.length;
-            while (x--) {
-              if(keys[x].indexOf(key) === 0 && cmdArgs[keys[x]] === undefined){
-                altKey = keys[x];
-              }
-            }
+        //     // switch name is not in list, look for match
+        //     var x = keys.length;
+        //     while (x--) {
+        //       if(keys[x].indexOf(key) === 0 && cmdArgs[keys[x]] === undefined){
+        //         altKey = keys[x];
+        //       }
+        //     }
 
-          }
-        }
+        //   }
+        // }
 
         if (splitCmdTemp[k + 1] && splitCmdTemp[k + 1][0] !== '-') {
           // has value
