@@ -4,7 +4,7 @@ module.exports = function subscribeCreator(msgOptions){
     var argObj = msgOptions.getArgs(arguments);
 
     msgOptions.subscribedTo[argObj.command] = {
-      cmd: argObj.command,
+      command: argObj.command,
       argObj: argObj,
       handler: argObj.handler
     };

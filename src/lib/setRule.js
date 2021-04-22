@@ -34,15 +34,15 @@ module.exports = function setRuleCreator(msgOptions){
       break;
     case 'socket':
       msgOptions.socketRules.push(rule);
-      log('socket rule from ' + rule.owner + ' stored: ' + rule.cmd);
+      log('socket rule from ' + rule.owner + ' stored: ' + rule.command);
 
       // TODO: waitForRule shouldn't only know about socket rules
-      (msgOptions.waitForRuleResolvers[rule.cmd] || []).forEach(resolve => resolve(rule));
+      (msgOptions.waitForRuleResolvers[rule.command] || []).forEach(resolve => resolve(rule));
       break;
     case 'publicSocket':
       if (!rule.ws){log('ERROR: RULE WITHOUT WS ', rule);}
       msgOptions.publicSocketRoutes[rule.publicSocketRoute].rules.push(rule);
-      log('publicSocket rule from ' + rule.owner + ' stored: ' + rule.cmd);
+      log('publicSocket rule from ' + rule.owner + ' stored: ' + rule.command);
       break;
     default: throw new Error('Unknown rule type: ' + rule.type + '\nRule: ' + JSON.stringify(rule));
     }

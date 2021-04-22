@@ -11,11 +11,11 @@ module.exports = function createHttpRuleCreator(msgOptions){
       rule.inPath = pOptions.url;
       rule.outPath = pOptions.url;
       rule.alias = pOptions.alias;
-      rule.cmd = pOptions.cmd || pOptions.url;
+      rule.command = pOptions.command || pOptions.url;
     } else {
       rule.type = 'httpPrivate';
       rule.outPath = '/' + pOptions.url;
-      rule.cmd = pOptions.cmd || pOptions.url;
+      rule.command = pOptions.command || pOptions.url;
     }
 
     // register hhtp rule in local express

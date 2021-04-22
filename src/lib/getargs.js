@@ -8,9 +8,6 @@ module.exports = function getArgsCreator(){
       const handler = args[1];
 
       return {
-        cmd: command,
-        handler: handler,
-
         command,
         handler,
       };
@@ -19,9 +16,6 @@ module.exports = function getArgsCreator(){
     const data = args[1];
     const handler = args[2];
     return {
-      cmd: command,
-      handler: handler,
-
       command,
       data,
       handler,

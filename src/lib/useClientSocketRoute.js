@@ -14,12 +14,12 @@ module.exports = function slaveFunctionsCreator(msgOptions){
       var cConnectedKeys = {};
       var usingWss = [];
 
-      var getRule = function(cmd){
-        const index = cRules.findIndex(function(rule){ return rule.cmd === cmd || rule.command === cmd; });
+      var getRule = function(command){
+        const index = cRules.findIndex(function(rule){ return rule.command === command || rule.command === command; });
         const rule = cRules[index];
         if (rule && rule.ws.readyState > 1) {
           cRules.splice(index, 1);
-          return getRule(cmd);
+          return getRule(command);
         }
         return rule;
       };
@@ -83,9 +83,9 @@ module.exports = function slaveFunctionsCreator(msgOptions){
         ws.on('message', function(msg2) {
 
           var msg = JSON.parse(msg2);
-          var cmd = msg.command;
+          var command = msg.command;
 
-          switch (cmd) {
+          switch (command) {
 
           case 'do':
             var newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();

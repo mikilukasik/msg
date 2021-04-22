@@ -98,10 +98,10 @@ module.exports = function createMsgGateway (options){
     subscribedTo: {}
   };
 
-  msgOptions.getSocketRule = function (cmd) {
+  msgOptions.getSocketRule = function (command) {
     // TODO: this is a hack. sockets in this array should always be ready, if not, we should report an error
     // disconnected services stay in this array, they should not
-    return msgOptions.socketRules.find(function(rule){ return rule.cmd === cmd && rule.ws.readyState === 1; });
+    return msgOptions.socketRules.find(function(rule){ return rule.command === command && rule.ws.readyState === 1; });
   };
 
   msgOptions.getAddress = function(){ 

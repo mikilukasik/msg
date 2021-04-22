@@ -19,7 +19,7 @@ module.exports = function msgGatewayObjCreator(msgOptions){
   // msgGateway.expose = require('./mgExpose')(msgOptions);
 
   msgGateway.waitForRule = async(ruleName) => new Promise((resolve) => {
-    const rule = msgOptions.socketRules.find(rule => rule.cmd === ruleName);
+    const rule = msgOptions.socketRules.find(rule => rule.command === ruleName);
     if (rule) return resolve(rule);
     msgOptions.waitForRuleResolvers[ruleName] = (msgOptions.waitForRuleResolvers[ruleName] || []).concat(resolve);
   });

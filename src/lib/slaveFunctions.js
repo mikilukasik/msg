@@ -134,7 +134,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
         }
 
         if (message.command === 'do'){
-          var cmd = message.argObj.command;
+          var command = message.argObj.command;
           var clientSocketRoute = message.clientSocketRoute;
 
           msgOptions.conversations[message.conversationId] = {
@@ -147,12 +147,12 @@ module.exports = function slaveFunctionsCreator(msgOptions){
 
           try{
             if (message.clientSocketRoute){
-              msgOptions.publicSocketRoutes[message.clientSocketRoute].getRule(cmd).ws.send(msg2.utf8Data); 
+              msgOptions.publicSocketRoutes[message.clientSocketRoute].getRule(command).ws.send(msg2.utf8Data); 
             } else {
-              msgOptions.getSocketRule(cmd).ws.send(msg2.utf8Data);      
+              msgOptions.getSocketRule(command).ws.send(msg2.utf8Data);      
             }
           } catch (e){
-            log('ERROR forwarding slave socket:', e.message, e.stack, {address, cmd, message, clientSocketRoute, publicSocketRoutes: msgOptions.publicSocketRoutes});
+            log('ERROR forwarding slave socket:', e.message, e.stack, {address, command, message, clientSocketRoute, publicSocketRoutes: msgOptions.publicSocketRoutes});
           }
           return;
         }
