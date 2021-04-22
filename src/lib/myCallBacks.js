@@ -3,8 +3,8 @@ module.exports = function myCallbacksCreator(msgOptions){
     socketOpen: function socketOpen(message){
       const connection = {
         onCloseFn: () => {},
-        do: function(firstArg) {
-          var argObj = msgOptions.getArgs(arguments);
+        do: function(command, data, handler) {
+          var argObj = { command, data, handler };
 
           var handlers = {
             dataHandler: function(){msgOptions.log('in pure datahandler!!!!!!!!!!!');},
@@ -98,6 +98,7 @@ module.exports = function myCallbacksCreator(msgOptions){
         message.argObj.command = split[0] + '_$$MSG_NEW';
         thisRule = msgOptions.mySocketRules[message.argObj.command];
       }
+
       var thisHandler = thisRule.handler;
       var newArgObj = message.argObj;
 

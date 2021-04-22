@@ -2,8 +2,8 @@ const getRandomId = require('./getRandomId.js');
 
 module.exports = function emitCreator(msgOptions){
 
-  function emit(cmd1){
-    var argObj = msgOptions.getArgs(arguments);
+  function emit(command, data, handler){
+    var argObj = { command, data, handler };
     if (!argObj.emitId) argObj.emitId = 'emit' + (getRandomId());
     return new Promise(function(res, rej){
       var rule = msgOptions.createRule(argObj);

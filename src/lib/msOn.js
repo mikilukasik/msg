@@ -1,7 +1,7 @@
 module.exports = function onCreator(msgOptions){
 
-  function on(cmd1){
-    var argObj = msgOptions.getArgs(arguments);
+  function on(command, handler){
+    var argObj = { command, handler };
     return new Promise(function(res, rej){
       var rule = msgOptions.createSocketRule(argObj);
       msgOptions.registerRule(rule, argObj).then(function(result){
@@ -23,8 +23,8 @@ module.exports = function onCreator(msgOptions){
   };
 
   ['get', 'post', 'put', 'delete', 'use'].forEach(method => {
-    on[method] = function (cmd1){
-      var argObj = msgOptions.getArgs(arguments);
+    on[method] = function (command, handler){
+      var argObj = { command, handler };
       return new Promise(function(res, rej){
         var rule = msgOptions.createHttpRule(argObj, method);
         msgOptions.registerRule(rule, argObj).then(function(result){

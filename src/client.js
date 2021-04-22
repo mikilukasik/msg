@@ -6,8 +6,6 @@ export const msgClient = (
     // TODO: there must be a better way
     if (typeof window === 'undefined') return { ws: () => ({ do: async() => {}, on: async() => {} }) };
 
-    var getArgs = require('./lib/getargs')();
-   
     var msgOptions = {
       mySocketRules: {},
       waitingHandlersByConvId: {},
@@ -204,8 +202,8 @@ export const msgClient = (
         //   });
         // };
 
-        function objDo(cmd1) {
-          var argObj = getArgs(arguments);
+        function objDo(command, data, handler) {
+          var argObj = { command, data, handler };
 
           var handlers = {
             dataHandler: function () { msgOptions.log('in pure datahandler!!!!!!!!!!!'); },
@@ -247,8 +245,8 @@ export const msgClient = (
           });
         }
 
-        function objOn(cmd1) {
-          var argObj = getArgs(arguments);
+        function objOn(command, handler) {
+          var argObj = { command, handler };
           return new Promise(function (res, rej) {
             return msgOptions.createSocketRule(argObj);
           });
@@ -347,7 +345,7 @@ export const msgClient = (
           );
 
           console.log('signing up for $$MSG_DISTOBJ_CHANGE_' + options.name); 
-          objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, {}, function (argObj, comms) {
+          objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, function (argObj, comms) {
 
             const prop = argObj.data.prop;
             const value = argObj.data.value;

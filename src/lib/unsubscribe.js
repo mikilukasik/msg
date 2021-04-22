@@ -1,7 +1,7 @@
 module.exports = function unsubscribeCreator(msgOptions){
 
-  return function unsubscribe(){
-    var argObj = msgOptions.getArgs(arguments);
+  return function unsubscribe(command, handler){
+    var argObj = { command, handler };
 
     return new Promise(function(resolve, rej){
       if (!msgOptions.subscribedTo[argObj.command]) return rej('Tried to unsub from ' + argObj.command + ', but was not subscribed.');

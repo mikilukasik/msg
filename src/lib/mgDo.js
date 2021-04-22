@@ -2,8 +2,8 @@ const getRandomId = require('./getRandomId.js');
 
 module.exports = function doCreator(msgOptions){
 
-  return function (cmd1){ // function do(){}
-    var argObj = msgOptions.getArgs(arguments);
+  return function (command, data, handler){ // function do(){}
+    var argObj = { command, data, handler };
 
     var handlers = {
       dataHandler: function(){msgOptions.log('in pure datahandler!!!!!!!!!!!');},

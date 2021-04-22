@@ -77,7 +77,7 @@ module.exports = function wsCreator(msgOptions){
 
       msgOptions.wsRoutes[route].distObjs[options.name] = data;
 
-      on('$$MSG_DISTOBJ_CHANGE_' + options.name, {}, function(argObj, comms){
+      on('$$MSG_DISTOBJ_CHANGE_' + options.name, function(argObj, comms){
 
         const prop = argObj.data.prop;
         const value = argObj.data.value;
@@ -120,7 +120,7 @@ module.exports = function wsCreator(msgOptions){
       });
 
 
-      on('$$MSG_GET_DISTOBJ_' + options.name, {}, function(argObj, comms){
+      on('$$MSG_GET_DISTOBJ_' + options.name, function(argObj, comms){
         const subDistObjs = [];
         function checkVal(key, val) {
           if (typeof val === 'object') {
@@ -147,7 +147,7 @@ module.exports = function wsCreator(msgOptions){
         options.onNew.forEach(fn => fn({argObj, connection: comms.connection}));
       });
 
-      on('$$MSG_GET_DISTOBJ_' + options.name + '_$$MSG_NEW', {}, function(argObj, comms){
+      on('$$MSG_GET_DISTOBJ_' + options.name + '_$$MSG_NEW', function(argObj, comms){
         const split = argObj.data.name.split('\\');
         const newProp = split.pop();
         const distObjName = split.join('\\');

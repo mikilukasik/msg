@@ -34,8 +34,6 @@ module.exports = function createMsgService(optionalOptions){
   var bodyParser = require('body-parser');
   var WebSocketClient = require('websocket').client;
 
-  var getArgsCreator = require('./lib/getargs');
-  
   var app = express();
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -50,7 +48,6 @@ module.exports = function createMsgService(optionalOptions){
     log: log,
     express:express,
     app: app,
-    getArgs: getArgsCreator(),
     ws: new WebSocketClient(),
     PORT: 5000,
     serviceName: 'msgService',
