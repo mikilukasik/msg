@@ -15,6 +15,9 @@ module.exports = function getArgsCreator(){
         args: [command, handler],
         cb: handler,
         cbs: [handler],
+
+        command,
+        handler,
       };
     };
 
@@ -28,6 +31,10 @@ module.exports = function getArgsCreator(){
       args: [command, data, handler],
       cb: handler,
       cbs: [handler],
+
+      command,
+      data,
+      handler,
     };
   };
 };

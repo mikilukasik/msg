@@ -21,7 +21,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
     // log('gateway received do cmd ' + message.argObj.cmd + ' from ' + message.owner);
 
     var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
-    var newArgObj = msgOptions.getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
+    var newArgObj = msgOptions.getArgs(message.argObj.args);
 
     thisHandler(newArgObj, {
       key: key,

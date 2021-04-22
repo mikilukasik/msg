@@ -170,7 +170,7 @@ export const msgClient = (
           },
           do: function (message) {
             var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
-            var newArgObj = getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
+            var newArgObj = getArgs(message.argObj.args);
             thisHandler(newArgObj, {
               message: message,
               conversationId: message.conversationId,

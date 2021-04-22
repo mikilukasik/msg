@@ -99,7 +99,7 @@ module.exports = function myCallbacksCreator(msgOptions){
         thisRule = msgOptions.mySocketRules[message.argObj.cmd];
       }
       var thisHandler = thisRule.cb;
-      var newArgObj = msgOptions.getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
+      var newArgObj = msgOptions.getArgs(message.argObj.args);
 
       if (Array.isArray(thisHandler)) {
         console.log('array as handler');
