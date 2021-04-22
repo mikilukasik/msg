@@ -75,7 +75,7 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
 
   it('.do sends string data to .on and receives string answer', async() => {
     msg.service1.on(command, (data, comms) => {
-      expect(data.args[1]).toBe(testDataString);
+      expect(data.data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
     return msg.service2.do(command, testDataString)
@@ -86,7 +86,7 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
   
   it('.do sends number data to .on and receives number answer', async() => {
     msg.service1.on(command, (data, comms) => {
-      expect(data.args[1]).toBe(testDataNumber);
+      expect(data.data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
     return msg.service2.do(command, testDataNumber)
@@ -97,7 +97,7 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
 
   it('.do sends object data to .on and receives object answer', async() => {
     msg.service1.on(command, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataObject);
+      expect(data.data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
     return msg.service2.do(command, testDataObject)
@@ -108,7 +108,7 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
 
   it('.do sends array data to .on and receives array answer', async() => {
     msg.service1.on(command, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataArray);
+      expect(data.data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
     return msg.service2.do(command, testDataArray)

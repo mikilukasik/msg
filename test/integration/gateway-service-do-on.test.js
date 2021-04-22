@@ -65,7 +65,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('service.do sends string data to gateway.on and receives string answer', async() => {
     msg.gateway.on(command, (data, comms) => {
-      expect(data.args[1]).toBe(testDataString);
+      expect(data.data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
     return msg.service.do(command, testDataString)
@@ -76,7 +76,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('gateway.do sends string data to service.on and receives string answer', async() => {
     msg.service.on(command, (data, comms) => {
-      expect(data.args[1]).toBe(testDataString);
+      expect(data.data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
     await msg.gateway.waitForRule(command);
@@ -88,7 +88,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('service.do sends number data to gateway.on and receives number answer', async() => {
     msg.gateway.on(command, (data, comms) => {
-      expect(data.args[1]).toBe(testDataNumber);
+      expect(data.data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
     return msg.service.do(command, testDataNumber)
@@ -99,7 +99,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('gateway.do sends number data to service.on and receives number answer', async() => {
     msg.service.on(command, (data, comms) => {
-      expect(data.args[1]).toBe(testDataNumber);
+      expect(data.data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
     await msg.gateway.waitForRule(command);
@@ -111,7 +111,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('service.do sends object data to gateway.on and receives object answer', async() => {
     msg.gateway.on(command, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataObject);
+      expect(data.data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
     return msg.service.do(command, testDataObject)
@@ -122,7 +122,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('gateway.do sends object data to service.on and receives object answer', async() => {
     msg.service.on(command, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataObject);
+      expect(data.data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
     await msg.gateway.waitForRule(command);
@@ -134,7 +134,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('service.do sends array data to gateway.on and receives array answer', async() => {
     msg.gateway.on(command, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataArray);
+      expect(data.data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
     return msg.service.do(command, testDataArray)
@@ -145,7 +145,7 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
 
   it('gateway.do sends array data to service.on and receives array answer', async() => {
     msg.service.on(command, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataArray);
+      expect(data.data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
     await msg.gateway.waitForRule(command);
