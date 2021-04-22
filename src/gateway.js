@@ -132,15 +132,15 @@ module.exports = function createMsgGateway (options){
   var mgUnsubscribeHandler =  require('./lib/mgUnsubscribeHandler')(msgOptions);
   msgOptions.obj.on.apply(this, mgUnsubscribeHandler);
 
-  shareFile = function(filename){
-    msgOptions.obj.on(
-      'GET dumps/' + filename,
-      function(req, res){
-        res.send(fs.readFileSync(filename));
-      }
-    );
-    log('Serving dump file on /dumps/' + filename);
-  };
+  // shareFile = function(filename){
+  //   msgOptions.obj.on(
+  //     'GET dumps/' + filename,
+  //     function(req, res){
+  //       res.send(fs.readFileSync(filename));
+  //     }
+  //   );
+  //   log('Serving dump file on /dumps/' + filename);
+  // };
 
   msgOptions.obj.start = () => msgOptions.getIps('private, public, gateway', {maxTries: 5, optional: 'gateway', ip: msgOptions.ip})
     .then(

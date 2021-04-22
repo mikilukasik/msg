@@ -6,7 +6,7 @@ module.exports = function wsOnCreator(msgOptions, route){
       argObj.publicSocket = {
         route: route
       };
-      var rule = msgOptions.createRule(argObj);
+      var rule = msgOptions.createSocketRule(argObj);
       msgOptions.registerRule(rule, argObj).then(function(result){
         var message = 'msg.ws().on service registered new rule';
         res({

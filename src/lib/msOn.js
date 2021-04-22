@@ -1,9 +1,9 @@
 module.exports = function onCreator(msgOptions){
 
-  return function on(cmd1){
+  function on(cmd1){
     var argObj = msgOptions.getArgs(arguments);
     return new Promise(function(res, rej){
-      var rule = msgOptions.createRule(argObj);
+      var rule = msgOptions.createSocketRule(argObj);
       msgOptions.registerRule(rule, argObj).then(function(result){
         var message = 'register new rule result: ' + result;
         res({
@@ -21,6 +21,33 @@ module.exports = function onCreator(msgOptions){
       });
     });
   };
+
+  ['get', 'post', 'put', 'delete', 'use'].forEach(method => {
+    on[method] = function (cmd1){
+      var argObj = msgOptions.getArgs(arguments);
+      return new Promise(function(res, rej){
+        var rule = msgOptions.createHttpRule(argObj, method);
+        msgOptions.registerRule(rule, argObj).then(function(result){
+          var message = 'register new rule result: ' + result;
+          res({
+            status: 'OK',
+            message: message,
+            result: result,
+            rule: rule
+          });
+        }, function(err){
+          var message = 'msg.on service could not register rule';
+          if (!err.messages) err.messages = [];
+          err.messages.push(message);
+          msgOptions.log(message, err, argObj, rule);
+          rej(err);
+        });
+      });
+    };
+  })
+
+  return on;
+
 
 
 };

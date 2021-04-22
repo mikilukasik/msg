@@ -18,7 +18,7 @@ module.exports = function msgServiceObjCreator(msgOptions){
   msgService.ws = require('./msWs')(msgOptions);
 
   msgService.static = function(route, dirName){
-    return msgOptions.obj.on( 'USE ' + route, msgOptions.express.static(dirName) );
+    return msgOptions.obj.on.use(route, msgOptions.express.static(dirName) );
   };
 
   msgService.close = () => new Promise((res) => {

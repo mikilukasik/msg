@@ -111,15 +111,15 @@ module.exports = function createMsgService(optionalOptions){
   msgOptions.obj = require('./lib/msgServiceObj')(msgOptions); 
   msgOptions.obj.app = app;
 
-  shareFile = function(filename){
-    msgOptions.obj.on(
-      'GET /dumps' + filename,
-      function(req, res){
-        res.send(fs.readFileSync(filename));
-      }
-    );
-    log('Serving dump file on /dumps' + filename);
-  };
+  // shareFile = function(filename){
+  //   msgOptions.obj.on(
+  //     'GET /dumps' + filename,
+  //     function(req, res){
+  //       res.send(fs.readFileSync(filename));
+  //     }
+  //   );
+  //   log('Serving dump file on /dumps' + filename);
+  // };
 
   log('MSG Service created.');
 

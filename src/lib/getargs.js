@@ -1,4 +1,5 @@
 // var JSON5 = require('json5');
+const isfunction = require('./isfunction');
 var isFunction = require('./isfunction');
 
 module.exports = function getArgsCreator(globOpts){
@@ -13,13 +14,32 @@ module.exports = function getArgsCreator(globOpts){
   }
 
   return function getArgs(a){
+    // let command;
+    let data;
+    let handler;
 
-    console.log({ a })
+    const command = a[0];
+    if (isfunction(a[1])) {
+      handler = a[1];
+
+      return {
+        splitCmd: [ command ],
+        cmd: command,
+        cmdStr: command,
+        cmdArgs: {},
+        args: [command, handler],
+        cb: handler,
+        cbs: [handler],
+      };
+    };
+
+
+    if (handler) console.log({ a })
 
     // if (!keys) keys = globOpts.keys;
-    var len = Object.keys(a).length;
-    var args = [];
-    for (var j = 0; j < len; j += 1){args.push(a[j]);}
+    // var len = Object.keys(a).length;
+    var args = [...a];
+    // for (var j = 0; j < len; j += 1){args.push(a[j]);}
     var argsLen = args.length;
     // get first string argument
     var cmdStr = null;
@@ -112,6 +132,18 @@ module.exports = function getArgsCreator(globOpts){
     }
     var cbs = [].concat(cb);
     if (!cb) cb = () => {};
+
+    if (handler) console.log({
+      param: cmdArgs.param,
+      splitCmd: splitCmd,
+      cmd: splitCmd[0],
+      cmdStr: cmdStr,
+      cmdArgs: cmdArgs,
+      args: args,
+      cb: cb,
+      cbs,
+    })
+
 
     return {
       param: cmdArgs.param,

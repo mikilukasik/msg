@@ -20,7 +20,7 @@ const getLogger = (prefix) => (...args) => console.log(prefix, ...args);
 describe('client to service http', () => {
   it('service handles GET request routed through the gateway', async() => {
     msg.service.app.use(cors());
-    msg.service.on(`GET ${testPath}`, (req, res) => {
+    msg.service.on.get(testPath, (req, res) => {
       res.send({ test: 'test' });
     });
 
