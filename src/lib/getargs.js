@@ -9,7 +9,7 @@ module.exports = function getArgsCreator(){
 
       return {
         cmd: command,
-        cb: handler,
+        handler: handler,
 
         command,
         handler,
@@ -20,7 +20,7 @@ module.exports = function getArgsCreator(){
     const handler = args[2];
     return {
       cmd: command,
-      cb: handler,
+      handler: handler,
 
       command,
       data,

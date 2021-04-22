@@ -6,12 +6,12 @@ module.exports = function subscribeCreator(msgOptions){
     msgOptions.subscribedTo[argObj.command] = {
       cmd: argObj.command,
       argObj: argObj,
-      cb: argObj.handler
+      handler: argObj.handler
     };
 
     return msgOptions.obj.do('msg:subscribe', { event: argObj.command }, function(comms){
       comms.onData(function(data){
-        msgOptions.subscribedTo[argObj.command].cb(data);
+        msgOptions.subscribedTo[argObj.command].handler(data);
       });
     });
   };

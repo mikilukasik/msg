@@ -98,7 +98,7 @@ module.exports = function myCallbacksCreator(msgOptions){
         message.argObj.command = split[0] + '_$$MSG_NEW';
         thisRule = msgOptions.mySocketRules[message.argObj.command];
       }
-      var thisHandler = thisRule.cb;
+      var thisHandler = thisRule.handler;
       var newArgObj = message.argObj;
 
       if (Array.isArray(thisHandler)) {
