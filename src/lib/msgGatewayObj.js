@@ -16,7 +16,7 @@ module.exports = function msgGatewayObjCreator(msgOptions){
   msgGateway.unsubscribe = require('./unsubscribe')(msgOptions);
   msgGateway.unsub = msgGateway.unsubscribe;
 
-  msgGateway.expose = require('./mgExpose')(msgOptions);
+  // msgGateway.expose = require('./mgExpose')(msgOptions);
 
   msgGateway.waitForRule = async(ruleName) => new Promise((resolve) => {
     const rule = msgOptions.socketRules.find(rule => rule.cmd === ruleName);

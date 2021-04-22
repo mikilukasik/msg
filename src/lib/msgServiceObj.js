@@ -3,7 +3,7 @@ module.exports = function msgServiceObjCreator(msgOptions){
   var msgService = {};
 
   msgService.connect = require('./msConnect')(msgOptions);
-  msgService.expose = require('./msExpose')(msgOptions);
+  // msgService.expose = require('./msExpose')(msgOptions);
 
   msgService.subscribe = require('./subscribe')(msgOptions);
   msgService.sub = msgService.subscribe;
