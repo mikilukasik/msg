@@ -17,7 +17,7 @@ describe('test on multiple spawned processes', () => {
       port: nextPortBase,
       code: ({ msgGateway, log }) => {
         msgGateway.on('socketTest', (data, comms) => {
-          log('1data', { data });
+          log({ data });
           comms.send({ success: true });
           msgGateway.close();
         });
@@ -36,7 +36,7 @@ describe('test on multiple spawned processes', () => {
       port: nextPortBase + 1,
       code: ({ msgService, log }) => {
         msgService.do('socketTest', { test: 'service-to-gateway-test' })
-          .then(response => log('1response', { response }))
+          .then(response => log({ response }))
           .then(msgService.close);
       },
       cb: ({ err, stdout, stderr, findInLogLines }) => {
@@ -48,7 +48,7 @@ describe('test on multiple spawned processes', () => {
     });
   });
 
-  xit('msgGateway.do can call msgService.on and gets the response', function(done) {
+  it('msgGateway.do can call msgService.on and gets the response', function(done) {
     this.timeout(10000);
     let oneFinished = false;
 
