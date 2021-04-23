@@ -6,8 +6,6 @@ export const msgClient = (
     // TODO: there must be a better way
     if (typeof window === 'undefined') return { ws: () => ({ do: async() => {}, on: async() => {} }) };
 
-    var getArgs = require('./lib/getargs')();
-   
     var msgOptions = {
       mySocketRules: {},
       waitingHandlersByConvId: {},
@@ -77,7 +75,7 @@ export const msgClient = (
             } catch (e) {
               message = evt.data;
             }
-            var callBack = msgOptions.wsRoutes[route].callBacks[message.command];
+            var callBack = msgOptions.wsRoutes[route].callBacks[message.cmd];
             if (!callBack) return console.log('No callback found, message:', message, callbacks);
             callBack(message);
           };
@@ -92,10 +90,10 @@ export const msgClient = (
           };
         }
 
-        function askGtw(command, data) {
+        function askGtw(cmd, data) {
           return new Promise(function (res3, rej3) {
             var tempConversationId = getRandomId();
-            data.command = command;
+            data.cmd = cmd;
             try {
               msgOptions.waitingCbsByConvId[tempConversationId] = function (reply) {
                 delete msgOptions.waitingCbsByConvId[tempConversationId];
@@ -126,14 +124,14 @@ export const msgClient = (
           });
         }
 
-        function toGtw(command, data, conversationId) {
+        function toGtw(cmd, data, conversationId) {
           return new Promise(function (res3, rej3) {
             try {
               waitForConnect()
                 .then(function () {
                   try {
                     msgOptions.wsRoutes[route].ws.send(JSON.stringify(Object.assign({
-                      command: command,
+                      cmd: cmd,
                       data: data,
                       owner: msgOptions.serviceLongName,
                       conversationId: conversationId,
@@ -169,9 +167,9 @@ export const msgClient = (
             msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
           },
           do: function (message) {
-            var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
-            var newArgObj = getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
-            thisHandler(newArgObj, {
+            var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].handler;
+            var newArgObj = message.argObj;
+            thisHandler(newArgObj.data, {
               message: message,
               conversationId: message.conversationId,
               send: function (data) {
@@ -204,15 +202,15 @@ export const msgClient = (
         //   });
         // };
 
-        function objDo(cmd1) {
-          var argObj = getArgs(arguments);
+        function objDo(cmd, data, handler) {
+          var argObj = { cmd, data, handler };
 
           var handlers = {
             dataHandler: function () { msgOptions.log('in pure datahandler!!!!!!!!!!!'); },
             errorHandler: function (e) { msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!'); },
           };
 
-          if (argObj.cb) {
+          if (argObj.handler) {
 
             var comms = {
               // TODO: this comms object needs data function, and a lot more. this is very weak.....
@@ -220,7 +218,7 @@ export const msgClient = (
                 handlers.dataHandler = onDataCb;
               }
             };
-            argObj.cb(comms);
+            argObj.handler(comms);
           }
 
           return new Promise(function (res, rej) {
@@ -247,8 +245,8 @@ export const msgClient = (
           });
         }
 
-        function objOn(cmd1) {
-          var argObj = getArgs(arguments);
+        function objOn(cmd, handler) {
+          var argObj = { cmd, handler };
           return new Promise(function (res, rej) {
             return msgOptions.createSocketRule(argObj);
           });
@@ -347,11 +345,11 @@ export const msgClient = (
           );
 
           console.log('signing up for $$MSG_DISTOBJ_CHANGE_' + options.name); 
-          objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, {}, function (argObj, comms) {
+          objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, function (data, comms) {
 
-            const prop = argObj.cmdArgs.prop;
-            const value = argObj.cmdArgs.value;
-            const deleted = argObj.cmdArgs.deleted;
+            const prop = data.prop;
+            const value = data.value;
+            const deleted = data.deleted;
 
             options.store[prop] = value;
             if (deleted) delete options.store[prop];

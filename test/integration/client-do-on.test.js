@@ -10,7 +10,7 @@ const SHOW_SERVICE_LOGS = false;
 let client;
 let msg;
 let socketRoute;
-let command;
+let cmd;
 let testDataString;
 let testDataStringResponse;
 let testDataNumber;
@@ -32,7 +32,7 @@ describe('client .do and .on, response with comms.send()', () => {
 
   beforeEach(async function() {
     nextPortBase += 10;
-    command = `someCommand${Math.random()}`;
+    cmd = `someCommand${Math.random()}`;
     socketRoute = `/${Math.random().toString(20).substr(2, 8)}`
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
@@ -88,27 +88,27 @@ describe('client .do and .on, response with comms.send()', () => {
 
   it('client.do sends data to service.on and receives answer', async() => {
     const serviceSocket = msg.service.ws(socketRoute);
-    serviceSocket.on(`${command}-string`, (data, comms) => {
-      expect(data.args[1]).toBe(testDataString);
+    serviceSocket.on(`${cmd}-string`, (data, comms) => {
+      expect(data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
-    serviceSocket.on(`${command}-number`, (data, comms) => {
-      expect(data.args[1]).toBe(testDataNumber);
+    serviceSocket.on(`${cmd}-number`, (data, comms) => {
+      expect(data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
-    serviceSocket.on(`${command}-object`, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataObject);
+    serviceSocket.on(`${cmd}-object`, (data, comms) => {
+      expect(data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
-    serviceSocket.on(`${command}-array`, (data, comms) => {
-      expect(data.args[1]).toStrictEqual(testDataArray);
+    serviceSocket.on(`${cmd}-array`, (data, comms) => {
+      expect(data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
 
     const response = await msg.runOnClient(({
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataString,
       testDataNumber,
       testDataObject,
@@ -116,15 +116,15 @@ describe('client .do and .on, response with comms.send()', () => {
     }) => {
       const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
       return Promise.all([
-        testSocket.do(`${command}-string`, testDataString),
-        testSocket.do(`${command}-number`, testDataNumber),
-        testSocket.do(`${command}-object`, testDataObject),
-        testSocket.do(`${command}-array`, testDataArray),
+        testSocket.do(`${cmd}-string`, testDataString),
+        testSocket.do(`${cmd}-number`, testDataNumber),
+        testSocket.do(`${cmd}-object`, testDataObject),
+        testSocket.do(`${cmd}-array`, testDataArray),
       ])
     }, {
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataString,
       testDataNumber,
       testDataObject,
@@ -156,7 +156,7 @@ describe('client .do and .on, response with comms.send()', () => {
       testDataArrayResponse,
     ];
 
-    serviceSocket.on(`${command}`, (data, comms) => {
+    serviceSocket.on(`${cmd}`, (data, comms) => {
       comms.onData((data) => {
         comms.data(responses.shift());
         dealWithData(data);
@@ -167,7 +167,7 @@ describe('client .do and .on, response with comms.send()', () => {
     const clientReceived = await msg.runOnClient(({
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataString,
       testDataNumber,
       testDataObject,
@@ -180,7 +180,7 @@ describe('client .do and .on, response with comms.send()', () => {
       }
       
       const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
-      testSocket.do(command, {}, (comms) => {
+      testSocket.do(cmd, {}, (comms) => {
         comms.onData((data) => {
           dealWithData(data);
         });
@@ -193,7 +193,7 @@ describe('client .do and .on, response with comms.send()', () => {
     }), {
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataString,
       testDataNumber,
       testDataObject,
@@ -221,7 +221,7 @@ describe('client .do and .on, response with comms.send()', () => {
     const clientResponsePromise = msg.runOnClient(({
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataStringResponse,
       testDataNumberResponse,
       testDataObjectResponse,
@@ -233,26 +233,26 @@ describe('client .do and .on, response with comms.send()', () => {
         if (result.length === 4) return resolve(result);
       }
       const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
-      testSocket.on(`${command}-string`, (data, comms) => {
+      testSocket.on(`${cmd}-string`, (data, comms) => {
         comms.send(testDataStringResponse);
-        dealWithData(data.args[1]);
+        dealWithData(data);
       });
-      testSocket.on(`${command}-number`, (data, comms) => {
+      testSocket.on(`${cmd}-number`, (data, comms) => {
         comms.send(testDataNumberResponse);
-        dealWithData(data.args[1]);
+        dealWithData(data);
       });
-      testSocket.on(`${command}-object`, (data, comms) => {
+      testSocket.on(`${cmd}-object`, (data, comms) => {
         comms.send(testDataObjectResponse);
-        dealWithData(data.args[1]);
+        dealWithData(data);
       });
-      testSocket.on(`${command}-array`, (data, comms) => {
+      testSocket.on(`${cmd}-array`, (data, comms) => {
         comms.send(testDataArrayResponse);
-        dealWithData(data.args[1]);
+        dealWithData(data);
       });
     }), {
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataStringResponse,
       testDataNumberResponse,
       testDataObjectResponse,
@@ -269,10 +269,10 @@ describe('client .do and .on, response with comms.send()', () => {
     });
 
     const serviceResponse = await Promise.all([
-      connection.do(`${command}-string`, testDataString),
-      connection.do(`${command}-number`, testDataNumber),
-      connection.do(`${command}-object`, testDataObject),
-      connection.do(`${command}-array`, testDataArray),
+      connection.do(`${cmd}-string`, testDataString),
+      connection.do(`${cmd}-number`, testDataNumber),
+      connection.do(`${cmd}-object`, testDataObject),
+      connection.do(`${cmd}-array`, testDataArray),
     ]);
 
     expect(serviceResponse).toStrictEqual([
@@ -298,7 +298,7 @@ describe('client .do and .on, response with comms.send()', () => {
     const clientResponsePromise = msg.runOnClient(({
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataStringResponse,
       testDataNumberResponse,
       testDataObjectResponse,
@@ -316,7 +316,7 @@ describe('client .do and .on, response with comms.send()', () => {
         testDataObjectResponse,
         testDataArrayResponse,
       ];
-      testSocket.on(`${command}`, (data, comms) => {
+      testSocket.on(`${cmd}`, (data, comms) => {
         comms.onData((data) => {
           dealWithData(data);
           comms.data(responses.shift());
@@ -325,7 +325,7 @@ describe('client .do and .on, response with comms.send()', () => {
     }), {
       nextPortBase,
       socketRoute,
-      command,
+      cmd,
       testDataStringResponse,
       testDataNumberResponse,
       testDataObjectResponse,
@@ -348,7 +348,7 @@ describe('client .do and .on, response with comms.send()', () => {
         if (result.length === 4) return resolve(result);
       }
 
-      connection.do(command, {}, (comms) => {
+      connection.do(cmd, {}, (comms) => {
         comms.onData((data) => {
           dealWithData(data);
         });

@@ -1,9 +1,9 @@
 module.exports = function onCreator(msgOptions){
 
-  return function on(cmd1){
-    var argObj = msgOptions.getArgs(arguments);
+  function on(cmd, handler){
+    var argObj = { cmd, handler };
     return new Promise(function(res, rej){
-      var rule = msgOptions.createRule(argObj);
+      var rule = msgOptions.createSocketRule(argObj);
 
       // msgOptions.mgDoHandlers[argObj.cmd] = argObj      
 
@@ -13,6 +13,24 @@ module.exports = function onCreator(msgOptions){
 
     });
   };
+
+  ['get', 'post', 'put', 'delete', 'use'].forEach(method => {
+    on[method] = function (cmd, handler){
+      var argObj = { cmd, handler };
+      return new Promise(function(res, rej){
+        var rule = msgOptions.createHttpRule(argObj, method);
+  
+        // msgOptions.mgDoHandlers[argObj.cmd] = argObj      
+  
+  
+        msgOptions.log('TODO: in mgon, rule');
+  
+  
+      });
+    };
+  });
+
+  return on;
 
 
 };

@@ -37,7 +37,6 @@ module.exports = function createMsgGateway (options){
   var expressWs = require('express-ws')(app);
 
   // var PORT = 3030
-  var getArgsCreator = require('./lib/getargs');
 
   var serviceName = options.serviceName || 'msg-gateway';
   var serviceId = getRandomId();
@@ -48,8 +47,6 @@ module.exports = function createMsgGateway (options){
     express: express,
     expressWs,
     log: options.log || console.log,
-
-    getArgs: getArgsCreator(),
 
     serviceName: serviceName,
     serviceId: serviceId,
@@ -132,15 +129,15 @@ module.exports = function createMsgGateway (options){
   var mgUnsubscribeHandler =  require('./lib/mgUnsubscribeHandler')(msgOptions);
   msgOptions.obj.on.apply(this, mgUnsubscribeHandler);
 
-  shareFile = function(filename){
-    msgOptions.obj.on(
-      'GET dumps/' + filename,
-      function(req, res){
-        res.send(fs.readFileSync(filename));
-      }
-    );
-    log('Serving dump file on /dumps/' + filename);
-  };
+  // shareFile = function(filename){
+  //   msgOptions.obj.on(
+  //     'GET dumps/' + filename,
+  //     function(req, res){
+  //       res.send(fs.readFileSync(filename));
+  //     }
+  //   );
+  //   log('Serving dump file on /dumps/' + filename);
+  // };
 
   msgOptions.obj.start = () => msgOptions.getIps('private, public, gateway', {maxTries: 5, optional: 'gateway', ip: msgOptions.ip})
     .then(

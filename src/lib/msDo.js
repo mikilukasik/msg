@@ -1,14 +1,14 @@
 module.exports = function doCreator(msgOptions){
 
-  return function (cmd1){ // function do(){}
-    var argObj = msgOptions.getArgs(arguments);
+  return function (cmd, data, handler){ // function do(){}
+    var argObj = { cmd, data, handler };
 
     var handlers = {
       dataHandler: function(){msgOptions.log('in pure datahandler!!!!!!!!!!!');},
       errorHandler: function(e){msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!');},
     };
 
-    if(argObj.cb){
+    if(argObj.handler){
 
       var comms = {
         onData: function (onDataCb) {
@@ -19,7 +19,7 @@ module.exports = function doCreator(msgOptions){
         }
       };
 
-      argObj.cb(comms);
+      argObj.handler(comms);
 
     }
 

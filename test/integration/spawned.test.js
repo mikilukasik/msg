@@ -24,7 +24,6 @@ describe('test on multiple spawned processes', () => {
       },
       cb: ({ err, stdout, stderr, findInLogLines }) => {
         if (err) { console.error(stderr, stdout); throw err; }
-        expect(findInLogLines(`'socketTest'`)).toBeTruthy();
         expect(findInLogLines(`{ test: 'service-to-gateway-test' }`)).toBeTruthy();
         if (oneFinished) return done();
         oneFinished = true;
@@ -65,8 +64,6 @@ describe('test on multiple spawned processes', () => {
       cb: ({ err, stdout, stderr, findInLogLines }) => {
         if (err) { console.error(stderr, stdout); throw err; }
         expect(findInLogLines('{ response: { success: true } }')).toBeTruthy();
-
-        
         if (oneFinished) return done();
         oneFinished = true;
       }
@@ -85,7 +82,6 @@ describe('test on multiple spawned processes', () => {
       },
       cb: ({ err, stdout, stderr, findInLogLines }) => {
         if (err) { console.error(stderr, stdout); throw err; }
-        expect(findInLogLines(`'socketTest'`)).toBeTruthy();
         expect(findInLogLines(`{ test: 'service-to-gateway-test' }`)).toBeTruthy();
         if (oneFinished) return done();
         oneFinished = true;

@@ -3,7 +3,7 @@ import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 
 let msg;
-let command
+let cmd
 let testDataString;
 let testDataNumber;
 let testDataObject;
@@ -16,7 +16,7 @@ const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
 describe('gateway <--> service: .data & .onData', () => {
   beforeEach(async function() {
     nextPortBase += 10;
-    command = `someCommand${Math.random()}`;
+    cmd = `someCommand${Math.random()}`;
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
     testDataObject = { [testDataString]: testDataNumber };
@@ -59,14 +59,14 @@ describe('gateway <--> service: .data & .onData', () => {
   it('service.do -> gateway.on, mid-flight data from gateway', (done) => {
     const dataCache = [];
 
-    msg.gateway.on(command, (data, comms) => {
+    msg.gateway.on(cmd, (data, comms) => {
       comms.data(testDataString);
       comms.data(testDataNumber);
       comms.data(testDataObject);
       comms.data(testDataArray);
     });
     
-    msg.service.do(command, testDataString, (comms) => {
+    msg.service.do(cmd, testDataString, (comms) => {
       comms.onData((data) => {
         dataCache.push(data);
         if (dataCache.length === 4) {
@@ -86,7 +86,7 @@ describe('gateway <--> service: .data & .onData', () => {
   xit('service.do -> gateway.on, mid-flight data from service', (done) => {
     const dataCache = [];
 
-    msg.gateway.on(command, (data, comms) => {
+    msg.gateway.on(cmd, (data, comms) => {
       comms.onData((data) => {
         dataCache.push(data);
         if (dataCache.length === 4) {
@@ -101,7 +101,7 @@ describe('gateway <--> service: .data & .onData', () => {
       });
     });
     
-    msg.service.do(command, testDataString, (comms) => {
+    msg.service.do(cmd, testDataString, (comms) => {
       comms.data(testDataString);
       comms.data(testDataNumber);
       comms.data(testDataObject);
@@ -112,7 +112,7 @@ describe('gateway <--> service: .data & .onData', () => {
   // TODO: doesn't work..
   xit('gateway.do -> service.on, mid-flight data from gateway', (done) => {
     const dataCache = [];
-    msg.service.on(command, (data, comms) => {
+    msg.service.on(cmd, (data, comms) => {
       comms.onData((data) => {
         dataCache.push(data);
         if (dataCache.length === 4) {
@@ -127,8 +127,8 @@ describe('gateway <--> service: .data & .onData', () => {
       });
     });
     
-    msg.gateway.waitForRule(command).then(() => {
-      msg.gateway.do(command, testDataString, (comms) => {
+    msg.gateway.waitForRule(cmd).then(() => {
+      msg.gateway.do(cmd, testDataString, (comms) => {
         comms.data(testDataString);
         comms.data(testDataNumber);
         comms.data(testDataObject);
@@ -139,15 +139,15 @@ describe('gateway <--> service: .data & .onData', () => {
 
   it('gateway.do -> service.on, mid-flight data from service', (done) => {
     const dataCache = [];
-    msg.service.on(command, (data, comms) => {
+    msg.service.on(cmd, (data, comms) => {
       comms.data(testDataString);
       comms.data(testDataNumber);
       comms.data(testDataObject);
       comms.data(testDataArray);
     });
     
-    msg.gateway.waitForRule(command).then(() => {
-      msg.gateway.do(command, testDataString, (comms) => {
+    msg.gateway.waitForRule(cmd).then(() => {
+      msg.gateway.do(cmd, testDataString, (comms) => {
         comms.onData((data) => {
           dataCache.push(data);
           if (dataCache.length === 4) {

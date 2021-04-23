@@ -40,7 +40,7 @@ module.exports = function wsCreator(msgOptions){
         }
       });
 
-      const data = new Proxy(options.store, {
+      const store = new Proxy(options.store, {
         set: function(obj, prop, value) {
           obj[prop] = value;
           if (typeof value === 'object') {
@@ -61,7 +61,7 @@ module.exports = function wsCreator(msgOptions){
           }
           msgOptions.wsRoutes[route].connections.forEach(connection => {
             if ((connection.followingDistObjs || {})[options.name])
-              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value }).then(() => {}, msgOptions.log);
+              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value }).catch(msgOptions.log);
           });
           return true;
         },
@@ -69,19 +69,19 @@ module.exports = function wsCreator(msgOptions){
           delete obj[prop];
           msgOptions.wsRoutes[route].connections.forEach(connection => {
             if ((connection.followingDistObjs || {})[options.name])
-              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, deleted: true }).then(() => {}, msgOptions.log);
+              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, deleted: true }).catch(msgOptions.log);
           });
           return true;
         },
       });
 
-      msgOptions.wsRoutes[route].distObjs[options.name] = data;
+      msgOptions.wsRoutes[route].distObjs[options.name] = store;
 
-      on('$$MSG_DISTOBJ_CHANGE_' + options.name, {}, function(argObj, comms){
+      on('$$MSG_DISTOBJ_CHANGE_' + options.name, function(changeData, comms){
 
-        const prop = argObj.cmdArgs.prop;
-        const value = argObj.cmdArgs.value;
-        const deleted = argObj.cmdArgs.deleted;
+        const prop = changeData.prop;
+        const value = changeData.value;
+        const deleted = changeData.deleted;
 
         options.store[prop] = value;
         if (deleted) delete options.store[prop];
@@ -109,7 +109,7 @@ module.exports = function wsCreator(msgOptions){
           if (
             connection.clientSocketKey !== comms.connection.clientSocketKey &&
             (connection.followingDistObjs || {})[options.name]
-            ) connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value, deleted }).then(() => {}, msgOptions.log);
+            ) connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value, deleted }).catch(msgOptions.log);
         });
 
         comms.send({
@@ -120,7 +120,7 @@ module.exports = function wsCreator(msgOptions){
       });
 
 
-      on('$$MSG_GET_DISTOBJ_' + options.name, {}, function(argObj, comms){
+      on('$$MSG_GET_DISTOBJ_' + options.name, function(data, comms){
         const subDistObjs = [];
         function checkVal(key, val) {
           if (typeof val === 'object') {
@@ -130,9 +130,9 @@ module.exports = function wsCreator(msgOptions){
         }
 
         
-        Object.assign(data, argObj.cmdArgs.value);
-        comms.send(data);
-        Object.keys(data).forEach(k => checkVal(options.name + '\\' + k, data[k]));
+        Object.assign(store, data.value);
+        comms.send(store);
+        Object.keys(store).forEach(k => checkVal(options.name + '\\' + k, store[k]));
 
         comms.connection.followingDistObjs = Object.assign(
           {},
@@ -144,27 +144,28 @@ module.exports = function wsCreator(msgOptions){
           }, {})
         );
 
-        options.onNew.forEach(fn => fn({argObj, connection: comms.connection}));
+        msgOptions.log('onNew1', options.onNew)
+        options.onNew.forEach(fn => fn({data, connection: comms.connection}));
       });
 
-      on('$$MSG_GET_DISTOBJ_' + options.name + '_$$MSG_NEW', {}, function(argObj, comms){
-        const split = argObj.cmdArgs.name.split('\\');
+      on('$$MSG_GET_DISTOBJ_' + options.name + '_$$MSG_NEW', function(data, comms){
+        const split = data.name.split('\\');
         const newProp = split.pop();
         const distObjName = split.join('\\');
 
-        if (!msgOptions.wsRoutes[route].distObjs[distObjName][newProp]) msgOptions.wsRoutes[route].distObjs[distObjName][newProp] = argObj.cmdArgs.value;
-        // Object.assign(msgOptions.wsRoutes[route].distObjs[distObjName][newProp], argObj.cmdArgs.value);
+        if (!msgOptions.wsRoutes[route].distObjs[distObjName][newProp]) msgOptions.wsRoutes[route].distObjs[distObjName][newProp] = data.value;
+        // Object.assign(msgOptions.wsRoutes[route].distObjs[distObjName][newProp], data.value);
         
         comms.connection.followingDistObjs = Object.assign(
           {},
           comms.connection.followingDistObjs,
-          {[argObj.cmdArgs.name]: true}
+          {[data.name]: true}
         );
 
 
 
         comms.send(msgOptions.wsRoutes[route].distObjs[distObjName][newProp]);
-        options.onNew.forEach(fn => fn({argObj, connection: comms.connection, newName: argObj.cmdArgs.name, newProp}));
+        options.onNew.forEach(fn => fn({data, connection: comms.connection, newName: data.name, newProp}));
       });
 
       const onChange = function(fn){
@@ -172,7 +173,7 @@ module.exports = function wsCreator(msgOptions){
       };
 
       return {
-        data,
+        data: store,
         onChange,
         onNew: function(fn){options.onNew.push(fn);},
         options,

@@ -2,23 +2,23 @@ var toStr = require('./toStr');
 
 module.exports = function toGtwCreator(msgOptions){
 
-  return function toGtw(command, data, conversationId){
+  return function toGtw(cmd, data, conversationId){
     // msgOptions.log('in mgToGtw');
     return Promise.all(
       Object.keys(msgOptions.gateways).filter(function(addr){
         return msgOptions.gateways[addr].toGtw;
       }).map(function(addr){
-        // msgOptions.log('sending ' + command + ' to ' + addr);
+        // msgOptions.log('sending ' + cmd + ' to ' + addr);
         try {
-          return msgOptions.gateways[addr].toGtw(command, data, conversationId);
+          return msgOptions.gateways[addr].toGtw(cmd, data, conversationId);
 
         } catch (e) {
           msgOptions.log(e.message + '\n' + e.stack);
         }
       })
     ).then(
-      function (resArr) {msgOptions.log(command + ' sent to ' + resArr.length + ' gateways.');},
-      function (errArr) {msgOptions.log('ERROR: failed to send ' + command + ' to ' + errArr.length + ' gateways: ' + toStr(errArr));}
+      function (resArr) {msgOptions.log(cmd + ' sent to ' + resArr.length + ' gateways.');},
+      function (errArr) {msgOptions.log('ERROR: failed to send ' + cmd + ' to ' + errArr.length + ' gateways: ' + toStr(errArr));}
     );
 
     // send stuff to all connected gateways
@@ -30,7 +30,7 @@ module.exports = function toGtwCreator(msgOptions){
     //       .then(function(){
             
     //         msgOptions.connection.send(JSON.stringify(Object.assign({
-    //           command: command,
+    //           cmd: cmd,
     //           data: data,
     //           owner: msgOptions.serviceLongName,
     //           conversationId: conversationId,            

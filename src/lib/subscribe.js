@@ -1,17 +1,17 @@
 module.exports = function subscribeCreator(msgOptions){
 
-  return function subscribe(){
-    var argObj = msgOptions.getArgs(arguments);
+  return function subscribe(cmd, handler){
+    var argObj = { cmd, handler };
 
     msgOptions.subscribedTo[argObj.cmd] = {
-      cmd: argObj.cmd,
+      cmd,
       argObj: argObj,
-      cb: argObj.cb
+      handler,
     };
 
-    return msgOptions.obj.do('msg:subscribe -e ' + argObj.cmd, function(comms){
+    return msgOptions.obj.do('msg:subscribe', { event: cmd }, function(comms){
       comms.onData(function(data){
-        msgOptions.subscribedTo[argObj.cmd].cb(data);
+        msgOptions.subscribedTo[cmd].handler(data);
       });
     });
   };

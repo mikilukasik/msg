@@ -3,14 +3,14 @@ module.exports = function handlerCreator(msgOptions) {
   
   var cmd = 'msg:unsubscribe';
   
-  var configObj = {
-    keys: [
-      'event',
-    ],
-  };
+  // var configObj = {
+  //   keys: [
+  //     'event',
+  //   ],
+  // };
 
   var handler = function(argObj, comms){
-    var event = argObj.cmdArgs.event;
+    var event = argObj.data.event;
     
     var i = (msgOptions.subscriptions[event] || []).length;
     while (i--) {
@@ -29,5 +29,5 @@ module.exports = function handlerCreator(msgOptions) {
 
   };
 
-  return [cmd, configObj, handler];
+  return [cmd, handler];
 };

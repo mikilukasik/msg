@@ -36,7 +36,7 @@ module.exports = function connectCreator(msgOptions){
             message = msg2.utf8Data;
             return;
           }
-          var callBack = msgOptions.myCallBacks[message.command];
+          var callBack = msgOptions.myCallBacks[message.cmd];
           if (!callBack) {
             msgOptions.log('No callback found, message:', message, msgOptions.myCallBacks);
             return;
@@ -52,8 +52,8 @@ module.exports = function connectCreator(msgOptions){
         
         // send all my subscriptions to gtw
         Object.keys(msgOptions.subscribedTo).forEach(function(sub){
-          msgOptions.obj.do('msg:subscribe -e ' + sub.cmd, function(comms){
-            comms.onData(function(data){ sub.cb(data); });
+          msgOptions.obj.do('msg:subscribe', { event: sub.cmd }, function(comms){
+            comms.onData(function(data){ sub.handler(data); });
           });
         });
 
@@ -86,7 +86,7 @@ module.exports = function connectCreator(msgOptions){
       msgOptions.getIps('private, public, gateway', {maxTries: 5, optional: 'gateway', ip: msgOptions.ip}).then(
         function(ips){ msgOptions.log('ips: ', ips); msgOptions.gotIp = true; return start(); },
         function(err){ msgOptions.log(err); throw err; }
-      ).then(() => {}, msgOptions.log);
+      ).catch(msgOptions.log);
       msgOptions.callWhenConnected(connResolve);
     });
   };

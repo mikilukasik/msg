@@ -1,12 +1,12 @@
 module.exports = function wsOnCreator(msgOptions, route){
 
-  return function on(cmd1){
-    var argObj = msgOptions.getArgs(arguments);
+  return function on(cmd, handler){
+    var argObj = { cmd, handler };
     return new Promise(function(res, rej){
       argObj.publicSocket = {
         route: route
       };
-      var rule = msgOptions.createRule(argObj);
+      var rule = msgOptions.createSocketRule(argObj);
       msgOptions.registerRule(rule, argObj).then(function(result){
         var message = 'msg.ws().on service registered new rule';
         res({

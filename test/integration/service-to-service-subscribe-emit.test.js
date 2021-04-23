@@ -5,7 +5,7 @@ import _msgGateway from '../../src/gateway';
 const SHOW_LOGS = false;
 
 let msg;
-let command;
+let cmd;
 let testDataString;
 
 let nextPortBase = 23000;
@@ -15,7 +15,7 @@ const getLogger = (prefix) => (...args) => SHOW_LOGS ? console.log(prefix, ...ar
 describe('service <--> service: .subscribe and .emit', () => {
   beforeEach(async function() {
     nextPortBase += 10;
-    command = `someCommand${Math.random()}`;
+    cmd = `someCommand${Math.random()}`;
     testDataString = `some string ${Math.random()}`;
    
     const gatewayOptions = {
@@ -62,21 +62,21 @@ describe('service <--> service: .subscribe and .emit', () => {
   });
 
   xit('service.emit sends data that service.subscribe receives', (done) => {
-    msg.service1.subscribe(command, (data) => {
-      expect(data.argObj.args[1]).toBe(testDataString);
+    msg.service1.subscribe(cmd, (data) => {
+      expect(data).toBe(testDataString);
       done();
     });
 
-    setTimeout(() => msg.service2.emit(command, testDataString), 50);
+    setTimeout(() => msg.service2.emit(cmd, testDataString), 50);
   });
 
   it('gateway.emit sends data that service.subscribe receives', (done) => {
-    msg.service1.subscribe(command, (data) => {
-      expect(data.argObj.args[1]).toBe(testDataString);
+    msg.service1.subscribe(cmd, (data) => {
+      expect(data).toBe(testDataString);
       done();
     });
 
-    setTimeout(() => msg.gateway.emit(command, testDataString), 50);
+    setTimeout(() => msg.gateway.emit(cmd, testDataString), 50);
   });
 
   it('gateway.emit sends data that multiple service.subscribe handlers receive', (done) => {
@@ -86,16 +86,16 @@ describe('service <--> service: .subscribe and .emit', () => {
       if (receivedCount === 2) done();
     };
     
-    msg.service1.subscribe(command, (data) => {
-      expect(data.argObj.args[1]).toBe(testDataString);
+    msg.service1.subscribe(cmd, (data) => {
+      expect(data).toBe(testDataString);
       registerCall();
     });
 
-    msg.service2.subscribe(command, (data) => {
-      expect(data.argObj.args[1]).toBe(testDataString);
+    msg.service2.subscribe(cmd, (data) => {
+      expect(data).toBe(testDataString);
       registerCall();
     });
 
-    setTimeout(() => msg.gateway.emit(command, testDataString), 50);
+    setTimeout(() => msg.gateway.emit(cmd, testDataString), 50);
   });
 });

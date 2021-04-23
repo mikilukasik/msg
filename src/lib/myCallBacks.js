@@ -3,15 +3,15 @@ module.exports = function myCallbacksCreator(msgOptions){
     socketOpen: function socketOpen(message){
       const connection = {
         onCloseFn: () => {},
-        do: function(firstArg) {
-          var argObj = msgOptions.getArgs(arguments);
+        do: function(cmd, data, handler) {
+          var argObj = { cmd, data, handler };
 
           var handlers = {
             dataHandler: function(){msgOptions.log('in pure datahandler!!!!!!!!!!!');},
             errorHandler: function(e){msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!');},
           };
 
-          if(argObj.cb){
+          if(argObj.handler){
             var comms = {
               onData: function (onDataCb) {
                 handlers.dataHandler = onDataCb;
@@ -22,7 +22,7 @@ module.exports = function myCallbacksCreator(msgOptions){
               //   });
               // },
             };
-            argObj.cb(comms);
+            argObj.handler(comms);
           }
 
           return new Promise(function(res, rej){
@@ -98,8 +98,9 @@ module.exports = function myCallbacksCreator(msgOptions){
         message.argObj.cmd = split[0] + '_$$MSG_NEW';
         thisRule = msgOptions.mySocketRules[message.argObj.cmd];
       }
-      var thisHandler = thisRule.cb;
-      var newArgObj = msgOptions.getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
+
+      var thisHandler = thisRule.handler;
+      var newArgObj = message.argObj;
 
       if (Array.isArray(thisHandler)) {
         console.log('array as handler');
@@ -107,7 +108,7 @@ module.exports = function myCallbacksCreator(msgOptions){
         // return;
       }
 
-      thisHandler(newArgObj, {
+      thisHandler(newArgObj.data, {
         key: message.clientSocketKey,
         send: function(data){
           msgOptions.toGtw('answer', data, message.conversationId);

@@ -12,7 +12,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
     type: 'do',
   };
   if (ws) ws.send(JSON.stringify({
-    command: 'doStarted',
+    cmd: 'doStarted',
     conversationId: newConversationId,
     tempConversationId: message.tempConversationId
   }));
@@ -20,10 +20,10 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
   if (msgOptions.mySocketRules[message.argObj.cmd]) {
     // log('gateway received do cmd ' + message.argObj.cmd + ' from ' + message.owner);
 
-    var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].cb;
-    var newArgObj = msgOptions.getArgs(message.argObj.args, msgOptions.mySocketRules[message.argObj.cmd].cmdArgs.keys);
+    var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].handler;
+    var newArgObj = message.argObj;
 
-    thisHandler(newArgObj, {
+    thisHandler(newArgObj.data, {
       key: key,
       serviceName: message.serviceName,
       serviceLongName: message.serviceLongName,
@@ -32,7 +32,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
 
       data: function(data) {
         if (ws) ws.send(toStr({
-          command: 'data',
+          cmd: 'data',
           conversationId: newConversationId,
           data: data,
           owner: msgOptions.serviceLongName,
@@ -43,7 +43,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
 
       send: function(data) {
         if (ws) ws.send(JSON.stringify({
-          command: 'answer',
+          cmd: 'answer',
           conversationId: newConversationId,
           data: data,
           owner: msgOptions.serviceLongName,
@@ -54,7 +54,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
 
       error: function(data) {
         if (ws) ws.send(msgOptions.stringify({
-          command: 'error',
+          cmd: 'error',
           conversationId: newConversationId,
           data: data,
           owner: msgOptions.serviceLongName,
@@ -72,20 +72,20 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
       {
         ws: {
           send: (jsStr) => {
-            const message2 = 'ERROR: Unknown command from ' + message.owner + ': ' + (jsStr);
+            const message2 = 'ERROR: Unknown cmd from ' + message.owner + ': ' + (jsStr);
             msgOptions.log(message2);
             throw new Error(message2);
           }
         }
       }).ws.send(JSON.stringify({
-        command: 'do',
+        cmd: 'do',
         argObj: message.argObj,
         conversationId: newConversationId
       }));
   } catch (e) {
     console.log(e)
     if (ws) ws.send(toStr({
-      command: 'error',
+      cmd: 'error',
       conversationId: newConversationId,
       error: e,
       message: e.message,
@@ -116,14 +116,14 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
 
       if (!thisSocket.serviceLongName && message.serviceLongName) thisSocket.serviceLongName = message.serviceLongName;
 
-      switch (message.command) {
+      switch (message.cmd) {
       case 'setRules':
         // log('rules received over WS from ' + message.owner);
         message.data.rules.forEach(rule => {
           try {
             if (rule.rule) {
               rule = rule.rule;
-              log('resolving ERROR rule in rule: ', message, message.command, message.rule);
+              log('resolving ERROR rule in rule: ', message, message.cmd, message.rule);
             }
             rule.ws = ws;
             rule.gateway = {
@@ -154,7 +154,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         
         if (!clientConnection) {
           ws.send(JSON.stringify({
-            command: 'error',
+            cmd: 'error',
             message: 'no connection with clienSocketKey ' + message.clientSocketKey,
             conversationId: message.tempConversationId,
             clientSocketKey: message.clientSocketKey,
@@ -182,7 +182,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
 
         if (!clientWs || clientWs.readyState > 1) {
           ws.send(JSON.stringify({
-            command: 'error',
+            cmd: 'error',
             message: 'clientWs does not exists or is not open. readyState: ' + (clientWs && clientWs.readyState),
             conversationId: message.tempConversationId,
             tempConversationId: message.tempConversationId,
@@ -195,13 +195,13 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         }
 
         clientWs.send(JSON.stringify({
-          command: 'do',
+          cmd: 'do',
           argObj: message.argObj,
           conversationId: newWsConversationId
         }));
 
         ws.send(JSON.stringify({
-          command: 'doStarted',
+          cmd: 'doStarted',
           conversationId: newWsConversationId,
           tempConversationId: message.tempConversationId,
           clientSocketKey: message.clientSocketKey,
@@ -232,7 +232,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         }
 
         conv.ws.send(JSON.stringify({
-          command: 'answer',
+          cmd: 'answer',
           data: message.data,
           conversationId: message.conversationId
         }));
@@ -262,7 +262,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
 
 
         convd.ws.send(JSON.stringify({
-          command: 'data',
+          cmd: 'data',
           data: message.data,
           conversationId: message.conversationId
         }));
@@ -291,7 +291,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         }
 
         convE.ws.send(JSON.stringify({
-          command: 'error',
+          cmd: 'error',
           data: message.data,
           conversationId: message.conversationId
         }));
@@ -299,7 +299,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
         break;
 
       default:
-        log('Unknown command', message);
+        log('Unknown cmd', message);
         break;
       }
     });
