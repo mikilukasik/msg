@@ -3,8 +3,8 @@ module.exports = function myCallbacksCreator(msgOptions){
     socketOpen: function socketOpen(message){
       const connection = {
         onCloseFn: () => {},
-        do: function(command, data, handler) {
-          var argObj = { command, data, handler };
+        do: function(cmd, data, handler) {
+          var argObj = { cmd, data, handler };
 
           var handlers = {
             dataHandler: function(){msgOptions.log('in pure datahandler!!!!!!!!!!!');},
@@ -91,12 +91,12 @@ module.exports = function myCallbacksCreator(msgOptions){
       delete msgOptions.waitingErrHandlersByConvId[message.conversationId];
     },
     do: function(message){
-      var thisRule = msgOptions.mySocketRules[message.argObj.command];
+      var thisRule = msgOptions.mySocketRules[message.argObj.cmd];
       if (!thisRule) {
-        const split = message.argObj.command.split('\\');
+        const split = message.argObj.cmd.split('\\');
         message.argObj.$$MSG_NEW = split[1];
-        message.argObj.command = split[0] + '_$$MSG_NEW';
-        thisRule = msgOptions.mySocketRules[message.argObj.command];
+        message.argObj.cmd = split[0] + '_$$MSG_NEW';
+        thisRule = msgOptions.mySocketRules[message.argObj.cmd];
       }
 
       var thisHandler = thisRule.handler;

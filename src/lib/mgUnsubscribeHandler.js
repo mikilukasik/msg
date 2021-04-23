@@ -1,7 +1,7 @@
 module.exports = function handlerCreator(msgOptions) {
   var log = msgOptions.log || console.log;
   
-  var command = 'msg:unsubscribe';
+  var cmd = 'msg:unsubscribe';
   
   // var configObj = {
   //   keys: [
@@ -29,5 +29,5 @@ module.exports = function handlerCreator(msgOptions) {
 
   };
 
-  return [command, handler];
+  return [cmd, handler];
 };

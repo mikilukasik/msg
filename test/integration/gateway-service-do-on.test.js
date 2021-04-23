@@ -3,7 +3,7 @@ import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 
 let msg;
-let command;
+let cmd;
 let testDataString;
 let testDataStringResponse;
 let testDataNumber;
@@ -20,7 +20,7 @@ const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
 describe('gateway <--> service: .do and .on, response with comms.send()', () => {
   beforeEach(async function() {
     nextPortBase += 10;
-    command = `someCommand${Math.random()}`;
+    cmd = `someCommand${Math.random()}`;
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
     testDataObject = { [testDataString]: testDataNumber };
@@ -64,92 +64,92 @@ describe('gateway <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('service.do sends string data to gateway.on and receives string answer', async() => {
-    msg.gateway.on(command, (data, comms) => {
+    msg.gateway.on(cmd, (data, comms) => {
       expect(data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
-    return msg.service.do(command, testDataString)
+    return msg.service.do(cmd, testDataString)
       .then(response => {
         expect(response).toStrictEqual(testDataStringResponse);
       });
   });
 
   it('gateway.do sends string data to service.on and receives string answer', async() => {
-    msg.service.on(command, (data, comms) => {
+    msg.service.on(cmd, (data, comms) => {
       expect(data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
-    await msg.gateway.waitForRule(command);
-    return msg.gateway.do(command, testDataString)
+    await msg.gateway.waitForRule(cmd);
+    return msg.gateway.do(cmd, testDataString)
       .then(response => {
         expect(response).toStrictEqual(testDataStringResponse);
       });
   });
 
   it('service.do sends number data to gateway.on and receives number answer', async() => {
-    msg.gateway.on(command, (data, comms) => {
+    msg.gateway.on(cmd, (data, comms) => {
       expect(data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
-    return msg.service.do(command, testDataNumber)
+    return msg.service.do(cmd, testDataNumber)
       .then(response => {
         expect(response).toStrictEqual(testDataNumberResponse);
       });
   });
 
   it('gateway.do sends number data to service.on and receives number answer', async() => {
-    msg.service.on(command, (data, comms) => {
+    msg.service.on(cmd, (data, comms) => {
       expect(data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
-    await msg.gateway.waitForRule(command);
-    return msg.gateway.do(command, testDataNumber)
+    await msg.gateway.waitForRule(cmd);
+    return msg.gateway.do(cmd, testDataNumber)
       .then(response => {
         expect(response).toStrictEqual(testDataNumberResponse);
       });
   });
 
   it('service.do sends object data to gateway.on and receives object answer', async() => {
-    msg.gateway.on(command, (data, comms) => {
+    msg.gateway.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
-    return msg.service.do(command, testDataObject)
+    return msg.service.do(cmd, testDataObject)
       .then(response => {
         expect(response).toStrictEqual(testDataObjectResponse);
       });
   });
 
   it('gateway.do sends object data to service.on and receives object answer', async() => {
-    msg.service.on(command, (data, comms) => {
+    msg.service.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
-    await msg.gateway.waitForRule(command);
-    return msg.gateway.do(command, testDataObject)
+    await msg.gateway.waitForRule(cmd);
+    return msg.gateway.do(cmd, testDataObject)
       .then(response => {
         expect(response).toStrictEqual(testDataObjectResponse);
       });
   });
 
   it('service.do sends array data to gateway.on and receives array answer', async() => {
-    msg.gateway.on(command, (data, comms) => {
+    msg.gateway.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
-    return msg.service.do(command, testDataArray)
+    return msg.service.do(cmd, testDataArray)
       .then(response => {
         expect(response).toStrictEqual(testDataArrayResponse);
       });
   });
 
   it('gateway.do sends array data to service.on and receives array answer', async() => {
-    msg.service.on(command, (data, comms) => {
+    msg.service.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
-    await msg.gateway.waitForRule(command);
-    return msg.gateway.do(command, testDataArray)
+    await msg.gateway.waitForRule(cmd);
+    return msg.gateway.do(cmd, testDataArray)
       .then(response => {
         expect(response).toStrictEqual(testDataArrayResponse);
       });

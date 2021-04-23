@@ -2,11 +2,11 @@ const getRandomId = require('./getRandomId.js');
 
 module.exports = function askGtwCreator(msgOptions){
 
-  return function askGtw(command, data){
+  return function askGtw(cmd, data){
     // msgOptions.log('in askGtw');
     return new Promise(function(res3, rej3){
       var tempConversationId = getRandomId();
-      data.command = command;
+      data.cmd = cmd;
       try {
         msgOptions.waitingCbsByConvId[tempConversationId] = function(reply) {
           // msgOptions.log('in final rersolver, reply:', reply)
@@ -20,8 +20,8 @@ module.exports = function askGtwCreator(msgOptions){
           delete msgOptions.waitingErrHandlersByConvId[tempConversationId];
           return rej3(e);
         };
-        msgOptions.toGtw(command, Object.assign({
-          // command: command,
+        msgOptions.toGtw(cmd, Object.assign({
+          // cmd: cmd,
           // data: data,
           // owner: msgOptions.serviceName,
           tempConversationId: tempConversationId

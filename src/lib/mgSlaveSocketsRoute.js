@@ -21,7 +21,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
     ws.on('message', function(msg2) {
       var message = JSON.parse(msg2);
       log('slave message received: ', msg2);
-      switch (message.command) {
+      switch (message.cmd) {
       case 'setRules':
         log('slave rules received over WS from ' + message.owner);
         message.data.rules.forEach(rule => {
@@ -71,7 +71,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
         };
           // msgOptions.log('buuuuuuuuuuuuu', message)
         ws.send(JSON.stringify({
-          command: 'doStarted',
+          cmd: 'doStarted',
           conversationId: newConversationId,
           tempConversationId: message.data.tempConversationId,
           clientSocketKey: message.clientSocketKey,
@@ -80,9 +80,9 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
           key,
         }));
 
-        if (msgOptions.mySocketRules[message.data.argObj.command]) {
+        if (msgOptions.mySocketRules[message.data.argObj.cmd]) {
 
-          var thisHandler = msgOptions.mySocketRules[message.data.argObj.command].handler;
+          var thisHandler = msgOptions.mySocketRules[message.data.argObj.cmd].handler;
           var newArgObj = message.data.argObj;
 
           thisHandler(newArgObj.data, {
@@ -100,7 +100,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
             data: function(data){
               try {
                 ws.send(toStr({
-                  command: 'data',
+                  cmd: 'data',
                   conversationId: newConversationId,
                   data: data,
                   owner: msgOptions.serviceLongName,
@@ -112,7 +112,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
 
             send: function(data){
               ws.send(JSON.stringify({
-                command: 'answer',
+                cmd: 'answer',
                 conversationId: newConversationId,
                 data: data,
                 owner: msgOptions.serviceLongName,
@@ -127,10 +127,10 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
         } 
 
         try{
-          (msgOptions.getSocketRule(message.argObj.command) || {ws:{send: (jsStr) => {
-            log('ERROR: Unknown slave command from ' + message.owner + ': ', JSON.parse(jsStr));
+          (msgOptions.getSocketRule(message.argObj.cmd) || {ws:{send: (jsStr) => {
+            log('ERROR: Unknown slave cmd from ' + message.owner + ': ', JSON.parse(jsStr));
           }}}).ws.send(JSON.stringify({
-            command: 'do',
+            cmd: 'do',
             argObj: message.argObj,
             conversationId: newConversationId,
             clientSocketKey: message.clientSocketKey,
@@ -146,7 +146,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
       case 'answer':
         var conv = msgOptions.conversations[message.conversationId];
         conv.ws.send(JSON.stringify({
-          command: 'answer',
+          cmd: 'answer',
           data: message.data,
           conversationId: message.conversationId
         }));
@@ -160,7 +160,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
           break;
         }
         convE.ws.send(JSON.stringify({
-          command: 'error',
+          cmd: 'error',
           data: message.data,
           conversationId: message.conversationId
         }));
@@ -168,7 +168,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
         break;
 
       default:
-        log('Unknown slave command', message );
+        log('Unknown slave cmd', message );
         break;
       }
     });

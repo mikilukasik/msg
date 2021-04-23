@@ -14,12 +14,12 @@ module.exports = function slaveFunctionsCreator(msgOptions){
       var cConnectedKeys = {};
       var usingWss = [];
 
-      var getRule = function(command){
-        const index = cRules.findIndex(function(rule){ return rule.command === command || rule.command === command; });
+      var getRule = function(cmd){
+        const index = cRules.findIndex(function(rule){ return rule.cmd === cmd || rule.cmd === cmd; });
         const rule = cRules[index];
         if (rule && rule.ws.readyState > 1) {
           cRules.splice(index, 1);
-          return getRule(command);
+          return getRule(cmd);
         }
         return rule;
       };
@@ -34,7 +34,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
           const uws = msgOptions.publicSocketRoutes[route].usingWss[uwsIdx];
           try{
             uws.send(JSON.stringify({
-              command: 'socketOpen',
+              cmd: 'socketOpen',
               route,
               key,
               clientSocketRoute: route,
@@ -60,7 +60,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
             const uws = msgOptions.publicSocketRoutes[route].usingWss[uwsIdx];
             try{
               uws.send(JSON.stringify({
-                command: 'socketClose',
+                cmd: 'socketClose',
                 route,
                 clientSocketRoute: route,
                 key,
@@ -83,9 +83,9 @@ module.exports = function slaveFunctionsCreator(msgOptions){
         ws.on('message', function(msg2) {
 
           var msg = JSON.parse(msg2);
-          var command = msg.command;
+          var cmd = msg.cmd;
 
-          switch (command) {
+          switch (cmd) {
 
           case 'do':
             var newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
@@ -101,7 +101,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
             };
 
             ws.send(JSON.stringify({
-              command: 'doStarted',
+              cmd: 'doStarted',
               conversationId: newConversationId,
               tempConversationId: msg.tempConversationId,
               clientSocketRoute: route,
@@ -110,12 +110,12 @@ module.exports = function slaveFunctionsCreator(msgOptions){
             }));
 
             try{
-              (getRule(msg.argObj.command) || (getRule(msg.argObj.command.split('\\')[0] + '_$$MSG_NEW')) || {ws:{send: (jsStr) => {
-                const message2 = 'ERROR: Unknown command from ' + msg.owner + ': ' + (jsStr);
+              (getRule(msg.argObj.cmd) || (getRule(msg.argObj.cmd.split('\\')[0] + '_$$MSG_NEW')) || {ws:{send: (jsStr) => {
+                const message2 = 'ERROR: Unknown cmd from ' + msg.owner + ': ' + (jsStr);
                 log(message2);
                 throw new Error(message2);
               }}}).ws.send(JSON.stringify({
-                command: 'do',
+                cmd: 'do',
                 argObj: msg.argObj,
                 conversationId: newConversationId,
                 clientSocketKey: key,
@@ -124,7 +124,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
               }));
             } catch (e) {
               ws.send(toStr({
-                command: 'error',
+                cmd: 'error',
                 conversationId: newConversationId,
                 error: e,
                 message: e.message,
@@ -145,7 +145,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
               break;
             }
             conv.ws.send(JSON.stringify({
-              command: 'answer',
+              cmd: 'answer',
               data: msg.data,
               conversationId: msg.conversationId,
               clientSocketRoute: route,
@@ -162,7 +162,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
               break;
             }
             convE.ws.send(JSON.stringify({
-              command: 'error',
+              cmd: 'error',
               data: msg.data,
               conversationId: msg.conversationId
             }));
@@ -171,7 +171,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
 
 
           default:
-            log('Unknown command on route ' + route + ': ', msg );
+            log('Unknown cmd on route ' + route + ': ', msg );
             break;
           }
 
@@ -196,7 +196,7 @@ module.exports = function slaveFunctionsCreator(msgOptions){
     Object.keys(msgOptions.publicSocketRoutes[route].connectedKeys).forEach(key => {
       try{
         usingWs.send(JSON.stringify({
-          command: 'socketOpen',
+          cmd: 'socketOpen',
           route,
           key,
           clientSocketRoute: route,

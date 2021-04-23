@@ -1,7 +1,7 @@
 module.exports = function wsOnCreator(msgOptions, route){
 
-  return function on(command, handler){
-    var argObj = { command, handler };
+  return function on(cmd, handler){
+    var argObj = { cmd, handler };
     return new Promise(function(res, rej){
       argObj.publicSocket = {
         route: route

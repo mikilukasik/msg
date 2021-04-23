@@ -75,7 +75,7 @@ export const msgClient = (
             } catch (e) {
               message = evt.data;
             }
-            var callBack = msgOptions.wsRoutes[route].callBacks[message.command];
+            var callBack = msgOptions.wsRoutes[route].callBacks[message.cmd];
             if (!callBack) return console.log('No callback found, message:', message, callbacks);
             callBack(message);
           };
@@ -90,10 +90,10 @@ export const msgClient = (
           };
         }
 
-        function askGtw(command, data) {
+        function askGtw(cmd, data) {
           return new Promise(function (res3, rej3) {
             var tempConversationId = getRandomId();
-            data.command = command;
+            data.cmd = cmd;
             try {
               msgOptions.waitingCbsByConvId[tempConversationId] = function (reply) {
                 delete msgOptions.waitingCbsByConvId[tempConversationId];
@@ -124,14 +124,14 @@ export const msgClient = (
           });
         }
 
-        function toGtw(command, data, conversationId) {
+        function toGtw(cmd, data, conversationId) {
           return new Promise(function (res3, rej3) {
             try {
               waitForConnect()
                 .then(function () {
                   try {
                     msgOptions.wsRoutes[route].ws.send(JSON.stringify(Object.assign({
-                      command: command,
+                      cmd: cmd,
                       data: data,
                       owner: msgOptions.serviceLongName,
                       conversationId: conversationId,
@@ -167,7 +167,7 @@ export const msgClient = (
             msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
           },
           do: function (message) {
-            var thisHandler = msgOptions.mySocketRules[message.argObj.command].handler;
+            var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].handler;
             var newArgObj = message.argObj;
             thisHandler(newArgObj.data, {
               message: message,
@@ -202,8 +202,8 @@ export const msgClient = (
         //   });
         // };
 
-        function objDo(command, data, handler) {
-          var argObj = { command, data, handler };
+        function objDo(cmd, data, handler) {
+          var argObj = { cmd, data, handler };
 
           var handlers = {
             dataHandler: function () { msgOptions.log('in pure datahandler!!!!!!!!!!!'); },
@@ -245,8 +245,8 @@ export const msgClient = (
           });
         }
 
-        function objOn(command, handler) {
-          var argObj = { command, handler };
+        function objOn(cmd, handler) {
+          var argObj = { cmd, handler };
           return new Promise(function (res, rej) {
             return msgOptions.createSocketRule(argObj);
           });

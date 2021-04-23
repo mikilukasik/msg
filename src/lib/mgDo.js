@@ -2,8 +2,8 @@ const getRandomId = require('./getRandomId.js');
 
 module.exports = function doCreator(msgOptions){
 
-  return function (command, data, handler){ // function do(){}
-    var argObj = { command, data, handler };
+  return function (cmd, data, handler){ // function do(){}
+    var argObj = { cmd, data, handler };
 
     var handlers = {
       dataHandler: function(){msgOptions.log('in pure datahandler!!!!!!!!!!!');},
@@ -22,8 +22,8 @@ module.exports = function doCreator(msgOptions){
     }
 
     return new Promise(function(res, rej){
-      // send the command to connected service(s?)
-      const socketRule = msgOptions.getSocketRule(argObj.command);
+      // send the cmd to connected service(s?)
+      const socketRule = msgOptions.getSocketRule(argObj.cmd);
       if (socketRule) {
         const newConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
         msgOptions.conversations[newConversationId] = {
@@ -40,14 +40,14 @@ module.exports = function doCreator(msgOptions){
         };
 
         socketRule.ws.send(JSON.stringify({
-          command: 'do',
+          cmd: 'do',
           argObj,
           conversationId: newConversationId
         }));
         return;
       }
 
-      // send the command to all connected gateways
+      // send the cmd to all connected gateways
       msgOptions.askGtw('do', {argObj: argObj})
           .then(function(askRes){
             handlers.errorHandler = function(e){

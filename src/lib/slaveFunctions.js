@@ -35,12 +35,12 @@ module.exports = function slaveFunctionsCreator(msgOptions){
       });
     };
 
-    thisGateway.toGtw = function(command, data, conversationId){
+    thisGateway.toGtw = function(cmd, data, conversationId){
       return new Promise(function(res3, rej3){
         try { 
           thisGateway.waitForConnection().then(function(){
             thisGateway.connection.send(JSON.stringify({
-              command: command,
+              cmd: cmd,
               data: data,
               owner: msgOptions.serviceLongName,
               conversationId: conversationId
@@ -112,29 +112,29 @@ module.exports = function slaveFunctionsCreator(msgOptions){
       connection.on('message', function(msg2) {
         var message = JSON.parse(msg2.utf8Data);
 
-        if (message.command === 'doStarted'){
+        if (message.cmd === 'doStarted'){
           // msgOptions.log('blaaaaaa',message);
           msgOptions.waitingCbsByConvId[message.tempConversationId](message);
           delete msgOptions.waitingCbsByConvId[message.tempConversationId];
         }
 
         // msgOptions.log('################~~~~~~~~~~~~~~~~~~################', message)
-        if (message.command === 'data') {
+        if (message.cmd === 'data') {
           // msgOptions.log('ccccccccccccccc' + message.conversationId)
           // msgOptions.log('cccccccccccwaitingHandlersByConvIdcccc' + msgOptions.waitingHandlersByConvId)
           msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
           // delete msgOptions.waitingCbsByConvId[message.conversationId]
         }
 
-        if (message.command === 'error') {
+        if (message.cmd === 'error') {
           // msgOptions.log('ccccccccccccccc' + message.conversationId)
           // msgOptions.log('cccccccccccwaitingHandlersByConvIdcccc' + msgOptions.waitingHandlersByConvId)
           msgOptions.waitingHandlersByConvId[message.conversationId].errorHandler(message.data);
           delete msgOptions.waitingCbsByConvId[message.conversationId]
         }
 
-        if (message.command === 'do'){
-          var command = message.argObj.command;
+        if (message.cmd === 'do'){
+          var cmd = message.argObj.cmd;
           var clientSocketRoute = message.clientSocketRoute;
 
           msgOptions.conversations[message.conversationId] = {
@@ -147,17 +147,17 @@ module.exports = function slaveFunctionsCreator(msgOptions){
 
           try{
             if (message.clientSocketRoute){
-              msgOptions.publicSocketRoutes[message.clientSocketRoute].getRule(command).ws.send(msg2.utf8Data); 
+              msgOptions.publicSocketRoutes[message.clientSocketRoute].getRule(cmd).ws.send(msg2.utf8Data); 
             } else {
-              msgOptions.getSocketRule(command).ws.send(msg2.utf8Data);      
+              msgOptions.getSocketRule(cmd).ws.send(msg2.utf8Data);      
             }
           } catch (e){
-            log('ERROR forwarding slave socket:', e.message, e.stack, {address, command, message, clientSocketRoute, publicSocketRoutes: msgOptions.publicSocketRoutes});
+            log('ERROR forwarding slave socket:', e.message, e.stack, {address, cmd, message, clientSocketRoute, publicSocketRoutes: msgOptions.publicSocketRoutes});
           }
           return;
         }
 
-        if(message.command === 'updateGatewayList'){
+        if(message.cmd === 'updateGatewayList'){
           return log('Gateway list received from new to-msg connection, NOT IMPLEMENTED:', message.data);
         }
       });

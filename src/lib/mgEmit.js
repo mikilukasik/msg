@@ -2,12 +2,12 @@ const getRandomId = require('./getRandomId.js');
 
 module.exports = function emitCreator(msgOptions){
 
-  function emit(command, data, handler){
-    var argObj = { command, data, handler };
+  function emit(cmd, data, handler){
+    var argObj = { cmd, data, handler };
     if (!argObj.emitId) argObj.emitId = 'emit' + (getRandomId());
     return new Promise(function(res, rej){
       var rule = msgOptions.createRule(argObj);
-      var subscribers = (msgOptions.subscriptions[argObj.command] || []);
+      var subscribers = (msgOptions.subscriptions[argObj.cmd] || []);
 
       let subI = subscribers.length;
       while (subI--) {

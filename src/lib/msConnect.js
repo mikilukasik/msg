@@ -36,7 +36,7 @@ module.exports = function connectCreator(msgOptions){
             message = msg2.utf8Data;
             return;
           }
-          var callBack = msgOptions.myCallBacks[message.command];
+          var callBack = msgOptions.myCallBacks[message.cmd];
           if (!callBack) {
             msgOptions.log('No callback found, message:', message, msgOptions.myCallBacks);
             return;
@@ -52,7 +52,7 @@ module.exports = function connectCreator(msgOptions){
         
         // send all my subscriptions to gtw
         Object.keys(msgOptions.subscribedTo).forEach(function(sub){
-          msgOptions.obj.do('msg:subscribe', { event: sub.command }, function(comms){
+          msgOptions.obj.do('msg:subscribe', { event: sub.cmd }, function(comms){
             comms.onData(function(data){ sub.handler(data); });
           });
         });

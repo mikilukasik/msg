@@ -1,7 +1,7 @@
 module.exports = function doCreator(msgOptions){
 
-  return function (command, data, handler){ // function do(){}
-    var argObj = { command, data, handler };
+  return function (cmd, data, handler){ // function do(){}
+    var argObj = { cmd, data, handler };
 
     var handlers = {
       dataHandler: function(){msgOptions.log('in pure datahandler!!!!!!!!!!!');},

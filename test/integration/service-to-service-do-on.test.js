@@ -3,7 +3,7 @@ import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 
 let msg;
-let command;
+let cmd;
 let testDataString;
 let testDataStringResponse;
 let testDataNumber;
@@ -20,7 +20,7 @@ const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
 describe('service <--> service: .do and .on, response with comms.send()', () => {
   beforeEach(async function() {
     nextPortBase += 10;
-    command = `someCommand${Math.random()}`;
+    cmd = `someCommand${Math.random()}`;
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
     testDataObject = { [testDataString]: testDataNumber };
@@ -74,44 +74,44 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
   });
 
   it('.do sends string data to .on and receives string answer', async() => {
-    msg.service1.on(command, (data, comms) => {
+    msg.service1.on(cmd, (data, comms) => {
       expect(data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
-    return msg.service2.do(command, testDataString)
+    return msg.service2.do(cmd, testDataString)
       .then(response => {
         expect(response).toStrictEqual(testDataStringResponse);
       });
   });
   
   it('.do sends number data to .on and receives number answer', async() => {
-    msg.service1.on(command, (data, comms) => {
+    msg.service1.on(cmd, (data, comms) => {
       expect(data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
-    return msg.service2.do(command, testDataNumber)
+    return msg.service2.do(cmd, testDataNumber)
       .then(response => {
         expect(response).toStrictEqual(testDataNumberResponse);
       });
   });
 
   it('.do sends object data to .on and receives object answer', async() => {
-    msg.service1.on(command, (data, comms) => {
+    msg.service1.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
-    return msg.service2.do(command, testDataObject)
+    return msg.service2.do(cmd, testDataObject)
       .then(response => {
         expect(response).toStrictEqual(testDataObjectResponse);
       });
   });
 
   it('.do sends array data to .on and receives array answer', async() => {
-    msg.service1.on(command, (data, comms) => {
+    msg.service1.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
-    return msg.service2.do(command, testDataArray)
+    return msg.service2.do(cmd, testDataArray)
       .then(response => {
         expect(response).toStrictEqual(testDataArrayResponse);
       });

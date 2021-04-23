@@ -3,7 +3,7 @@ module.exports = function createHttpRuleCreator(msgOptions){
   return function createHttpRule(argObj, method, rule = {}){
     rule.method = method;
     var pOptions = {
-      url: argObj.command
+      url: argObj.cmd
     };
 
     if (pOptions.url[0] === '/'){
@@ -11,11 +11,11 @@ module.exports = function createHttpRuleCreator(msgOptions){
       rule.inPath = pOptions.url;
       rule.outPath = pOptions.url;
       rule.alias = pOptions.alias;
-      rule.command = pOptions.command || pOptions.url;
+      rule.cmd = pOptions.cmd || pOptions.url;
     } else {
       rule.type = 'httpPrivate';
       rule.outPath = '/' + pOptions.url;
-      rule.command = pOptions.command || pOptions.url;
+      rule.cmd = pOptions.cmd || pOptions.url;
     }
 
     // register hhtp rule in local express
