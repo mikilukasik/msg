@@ -108,7 +108,7 @@ module.exports = function myCallbacksCreator(msgOptions){
         // return;
       }
 
-      thisHandler(newArgObj, {
+      thisHandler(newArgObj.data, {
         key: message.clientSocketKey,
         send: function(data){
           msgOptions.toGtw('answer', data, message.conversationId);

@@ -89,19 +89,19 @@ describe('client .do and .on, response with comms.send()', () => {
   it('client.do sends data to service.on and receives answer', async() => {
     const serviceSocket = msg.service.ws(socketRoute);
     serviceSocket.on(`${command}-string`, (data, comms) => {
-      expect(data.data).toBe(testDataString);
+      expect(data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
     serviceSocket.on(`${command}-number`, (data, comms) => {
-      expect(data.data).toBe(testDataNumber);
+      expect(data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
     serviceSocket.on(`${command}-object`, (data, comms) => {
-      expect(data.data).toStrictEqual(testDataObject);
+      expect(data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
     serviceSocket.on(`${command}-array`, (data, comms) => {
-      expect(data.data).toStrictEqual(testDataArray);
+      expect(data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
 
@@ -235,19 +235,19 @@ describe('client .do and .on, response with comms.send()', () => {
       const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
       testSocket.on(`${command}-string`, (data, comms) => {
         comms.send(testDataStringResponse);
-        dealWithData(data.data);
+        dealWithData(data);
       });
       testSocket.on(`${command}-number`, (data, comms) => {
         comms.send(testDataNumberResponse);
-        dealWithData(data.data);
+        dealWithData(data);
       });
       testSocket.on(`${command}-object`, (data, comms) => {
         comms.send(testDataObjectResponse);
-        dealWithData(data.data);
+        dealWithData(data);
       });
       testSocket.on(`${command}-array`, (data, comms) => {
         comms.send(testDataArrayResponse);
-        dealWithData(data.data);
+        dealWithData(data);
       });
     }), {
       nextPortBase,

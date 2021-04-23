@@ -16,6 +16,7 @@ export const spawnServer = ({ type, code, env = {}, port, cb: _cb }) => {
 
   const cb = (err, stdout, stderr) => {
     const logArray = (stdout || '').split('\n');
+    
     const findInLogLines = (str) => logArray.find(line => line.indexOf(str) >= 0);
     _cb({ err, stdout, stderr, findInLogLines });
   }

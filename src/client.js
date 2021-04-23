@@ -169,7 +169,7 @@ export const msgClient = (
           do: function (message) {
             var thisHandler = msgOptions.mySocketRules[message.argObj.command].handler;
             var newArgObj = message.argObj;
-            thisHandler(newArgObj, {
+            thisHandler(newArgObj.data, {
               message: message,
               conversationId: message.conversationId,
               send: function (data) {
@@ -345,11 +345,11 @@ export const msgClient = (
           );
 
           console.log('signing up for $$MSG_DISTOBJ_CHANGE_' + options.name); 
-          objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, function (argObj, comms) {
+          objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, function (data, comms) {
 
-            const prop = argObj.data.prop;
-            const value = argObj.data.value;
-            const deleted = argObj.data.deleted;
+            const prop = data.prop;
+            const value = data.value;
+            const deleted = data.deleted;
 
             options.store[prop] = value;
             if (deleted) delete options.store[prop];

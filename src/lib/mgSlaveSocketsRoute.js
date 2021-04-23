@@ -85,7 +85,7 @@ module.exports = function mgSlaceSocketRouteCreator(msgOptions){
           var thisHandler = msgOptions.mySocketRules[message.data.argObj.command].handler;
           var newArgObj = message.data.argObj;
 
-          thisHandler(newArgObj, {
+          thisHandler(newArgObj.data, {
 
             key: key,
             serviceName: message.serviceName,

@@ -23,7 +23,7 @@ const handleDo = ({ msgOptions, message, ws, key }) => {
     var thisHandler = msgOptions.mySocketRules[message.argObj.command].handler;
     var newArgObj = message.argObj;
 
-    thisHandler(newArgObj, {
+    thisHandler(newArgObj.data, {
       key: key,
       serviceName: message.serviceName,
       serviceLongName: message.serviceLongName,

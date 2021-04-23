@@ -21,8 +21,8 @@ module.exports = function handlerCreator(msgOptions) {
     return true;
   };
 
-  var handler = function(argObj, comms){
-    var event = argObj.data.event;
+  var handler = function(data, comms){
+    var event = data.event;
     if (!event || event === 'undefined') log( new Error('event cannot be undefined') )
 
     if(!msgOptions.subscriptions[event]) {
@@ -42,7 +42,7 @@ module.exports = function handlerCreator(msgOptions) {
 
     }
     msgOptions.subscriptions[event].push({
-      argObj,
+      // argObj,
       event,
       comms,
       ws: comms.ws,
