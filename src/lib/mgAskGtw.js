@@ -28,7 +28,7 @@ module.exports = function askGtwCreator(msgOptions){
           // data: data,
           // owner: msgOptions.serviceName,
           tempConversationId: tempConversationId
-        }, data)).then(() => {}, msgOptions.log);
+        }, data)).catch(msgOptions.log);
       } catch (te) {
         msgOptions.log(te.message + '\n' + te.stack);
         rej3(te);

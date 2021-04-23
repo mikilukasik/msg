@@ -61,7 +61,7 @@ module.exports = function wsCreator(msgOptions){
           }
           msgOptions.wsRoutes[route].connections.forEach(connection => {
             if ((connection.followingDistObjs || {})[options.name])
-              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value }).then((rr) => { msgOptions.log({rr}) }, msgOptions.log);
+              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value }).catch(msgOptions.log);
           });
           return true;
         },
@@ -69,7 +69,7 @@ module.exports = function wsCreator(msgOptions){
           delete obj[prop];
           msgOptions.wsRoutes[route].connections.forEach(connection => {
             if ((connection.followingDistObjs || {})[options.name])
-              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, deleted: true }).then(() => {}, msgOptions.log);
+              connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, deleted: true }).catch(msgOptions.log);
           });
           return true;
         },
@@ -109,7 +109,7 @@ module.exports = function wsCreator(msgOptions){
           if (
             connection.clientSocketKey !== comms.connection.clientSocketKey &&
             (connection.followingDistObjs || {})[options.name]
-            ) connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value, deleted }).then(() => {}, msgOptions.log);
+            ) connection.do('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value, deleted }).catch(msgOptions.log);
         });
 
         comms.send({

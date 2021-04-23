@@ -86,7 +86,7 @@ module.exports = function connectCreator(msgOptions){
       msgOptions.getIps('private, public, gateway', {maxTries: 5, optional: 'gateway', ip: msgOptions.ip}).then(
         function(ips){ msgOptions.log('ips: ', ips); msgOptions.gotIp = true; return start(); },
         function(err){ msgOptions.log(err); throw err; }
-      ).then(() => {}, msgOptions.log);
+      ).catch(msgOptions.log);
       msgOptions.callWhenConnected(connResolve);
     });
   };
