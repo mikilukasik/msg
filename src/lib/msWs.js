@@ -120,7 +120,7 @@ module.exports = function wsCreator(msgOptions){
       });
 
 
-      on('$$MSG_GET_DISTOBJ_' + options.name, function(getData, comms){
+      on('$$MSG_GET_DISTOBJ_' + options.name, function(data, comms){
         const subDistObjs = [];
         function checkVal(key, val) {
           if (typeof val === 'object') {
@@ -130,7 +130,7 @@ module.exports = function wsCreator(msgOptions){
         }
 
         
-        Object.assign(store, getData.value);
+        Object.assign(store, data.value);
         comms.send(store);
         Object.keys(store).forEach(k => checkVal(options.name + '\\' + k, store[k]));
 
@@ -145,27 +145,27 @@ module.exports = function wsCreator(msgOptions){
         );
 
         msgOptions.log('onNew1', options.onNew)
-        options.onNew.forEach(fn => fn({getData, connection: comms.connection}));
+        options.onNew.forEach(fn => fn({data, connection: comms.connection}));
       });
 
-      on('$$MSG_GET_DISTOBJ_' + options.name + '_$$MSG_NEW', function(getNewData, comms){
-        const split = getNewData.name.split('\\');
+      on('$$MSG_GET_DISTOBJ_' + options.name + '_$$MSG_NEW', function(data, comms){
+        const split = data.name.split('\\');
         const newProp = split.pop();
         const distObjName = split.join('\\');
 
-        if (!msgOptions.wsRoutes[route].distObjs[distObjName][newProp]) msgOptions.wsRoutes[route].distObjs[distObjName][newProp] = getNewData.value;
-        // Object.assign(msgOptions.wsRoutes[route].distObjs[distObjName][newProp], getNewData.value);
+        if (!msgOptions.wsRoutes[route].distObjs[distObjName][newProp]) msgOptions.wsRoutes[route].distObjs[distObjName][newProp] = data.value;
+        // Object.assign(msgOptions.wsRoutes[route].distObjs[distObjName][newProp], data.value);
         
         comms.connection.followingDistObjs = Object.assign(
           {},
           comms.connection.followingDistObjs,
-          {[getNewData.name]: true}
+          {[data.name]: true}
         );
 
 
 
         comms.send(msgOptions.wsRoutes[route].distObjs[distObjName][newProp]);
-        options.onNew.forEach(fn => fn({getNewData, connection: comms.connection, newName: getNewData.name, newProp}));
+        options.onNew.forEach(fn => fn({data, connection: comms.connection, newName: data.name, newProp}));
       });
 
       const onChange = function(fn){
