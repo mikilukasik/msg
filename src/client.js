@@ -4,7 +4,7 @@ export const msgClient = (
   function createMsgService(optionalOptions) {
     // the below hack is needed do the client bundle can be built in consuming apps.
     // TODO: there must be a better way
-    if (typeof window === 'undefined') return { ws: () => ({ do: async() => {}, on: async() => {} }) };
+    if (typeof self === 'undefined') return { ws: () => ({ do: async() => {}, on: async() => {} }) };
 
     var msgOptions = {
       mySocketRules: {},
@@ -407,4 +407,4 @@ export const msgClient = (
   log: console.log,
 });
 
-if (typeof window !== 'undefined') window.msgClient = msgClient;
+if (typeof self !== 'undefined') self.msgClient = msgClient;
