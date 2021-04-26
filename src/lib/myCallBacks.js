@@ -43,9 +43,10 @@ module.exports = function myCallbacksCreator(msgOptions){
         key: message.key,
         route: message.route,
         clientSocketKey: message.clientSocketKey,
-        cookie: message.cookie,
+        cookie: message.headers.cookie,
+        headers: message.headers,
         cookies: {
-          get: cName => ((message.cookie || '').split(';').find(cstr => cstr.split('=')[0].trim() === cName) || '').split('=').slice(1).join('='),
+          get: cName => ((message.headers.cookie || '').split(';').find(cstr => cstr.split('=')[0].trim() === cName) || '').split('=').slice(1).join('='),
           set(){return 'TODO!! not implemented, should ask client to save cookie and add new cookie here and on gtw';},
         },
         onClose: (fn) => {

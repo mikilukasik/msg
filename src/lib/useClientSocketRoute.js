@@ -32,6 +32,9 @@ module.exports = function slaveFunctionsCreator(msgOptions){
         let uwsIdx = msgOptions.publicSocketRoutes[route].usingWss.length;
         while (uwsIdx--) {
           const uws = msgOptions.publicSocketRoutes[route].usingWss[uwsIdx];
+
+          // console.log({h: req.headers});
+
           try{
             uws.send(JSON.stringify({
               cmd: 'socketOpen',
@@ -39,7 +42,8 @@ module.exports = function slaveFunctionsCreator(msgOptions){
               key,
               clientSocketRoute: route,
               clientSocketKey: key,
-              cookie: req.headers.cookie
+              headers: req.headers,
+              // cookie: req.headers.cookie
             }));
           } catch (e) {
             if (e.message === 'not opened') {
@@ -194,6 +198,8 @@ module.exports = function slaveFunctionsCreator(msgOptions){
 
     // let the service know about already open connections
     Object.keys(msgOptions.publicSocketRoutes[route].connectedKeys).forEach(key => {
+      // console.log(msgOptions.publicSocketRoutes[route].connectedKeys[key].req.headers)
+
       try{
         usingWs.send(JSON.stringify({
           cmd: 'socketOpen',
@@ -201,7 +207,8 @@ module.exports = function slaveFunctionsCreator(msgOptions){
           key,
           clientSocketRoute: route,
           clientSocketKey: key,
-          cookie: msgOptions.publicSocketRoutes[route].connectedKeys[key].req.headers.cookie
+          // cookie: msgOptions.publicSocketRoutes[route].connectedKeys[key].req.headers.cookie,
+          headers: msgOptions.publicSocketRoutes[route].connectedKeys[key].req.headers,
         }));
       } catch (e) {
         log({m: e.message}, e);
