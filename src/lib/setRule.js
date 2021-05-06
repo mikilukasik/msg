@@ -42,7 +42,7 @@ module.exports = function setRuleCreator(msgOptions){
     case 'publicSocket':
       if (!rule.ws){log('ERROR: RULE WITHOUT WS ', rule);}
       msgOptions.publicSocketRoutes[rule.publicSocketRoute].rules.push(rule);
-      log('publicSocket rule from ' + rule.owner + ' stored: ' + rule.cmd);
+      // log('publicSocket rule from ' + rule.owner + ' stored: ' + rule.cmd);
       break;
     default: throw new Error('Unknown rule type: ' + rule.type + '\nRule: ' + JSON.stringify(rule));
     }
