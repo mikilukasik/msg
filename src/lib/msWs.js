@@ -144,7 +144,7 @@ module.exports = function wsCreator(msgOptions){
           }, {})
         );
 
-        msgOptions.log('onNew1', options.onNew)
+        // msgOptions.log('onNew1', options.onNew)
         options.onNew.forEach(fn => fn({data, connection: comms.connection}));
       });
 
