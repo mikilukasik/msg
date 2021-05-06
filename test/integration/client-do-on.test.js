@@ -2,6 +2,7 @@ import expect from 'expect';
 import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 import { getClient } from '../helpers';
+import { msgClient } from '../../src/client';
 
 const SHOW_CLIENT_LOGS = false;
 const SHOW_GATEWAY_LOGS = false;
@@ -139,39 +140,25 @@ describe('client .do and .on, response with comms.send()', () => {
     ]);
   });
 
-  xit('client.do service.on in-flight data', async() => {
+  // TODO: the below only works one way. data/onData needs to work both ways
+  it('client.do service.on in-flight data from service to client', async() => {
     const serviceSocket = msg.service.ws(socketRoute);
 
-    const serviceReceived = []
-    // await new Promise((resolve) => {
-    const dealWithData = (data) => {
-      serviceReceived.push(data);
-      if (serviceReceived.length === 4) return resolve(serviceReceived);
-    };
-
-    const responses = [
-      testDataStringResponse,
-      testDataNumberResponse,
-      testDataObjectResponse,
-      testDataArrayResponse,
+    const testData = [
+      testDataString,
+      testDataNumber,
+      testDataObject,
+      testDataArray,
     ];
 
     serviceSocket.on(`${cmd}`, (data, comms) => {
-      comms.onData((data) => {
-        comms.data(responses.shift());
-        dealWithData(data);
-      })
+      testData.forEach(td => comms.data(td))
     });
-    // });
 
     const clientReceived = await msg.runOnClient(({
       nextPortBase,
       socketRoute,
       cmd,
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
     }) => new Promise((resolve) => {
       const result = [];
       const dealWithData = (data) => {
@@ -184,28 +171,60 @@ describe('client .do and .on, response with comms.send()', () => {
         comms.onData((data) => {
           dealWithData(data);
         });
-
-        comms.data(testDataString);
-        comms.data(testDataNumber);
-        comms.data(testDataObject);
-        comms.data(testDataArray);
       });
     }), {
       nextPortBase,
       socketRoute,
       cmd,
+    });
+
+    expect(clientReceived).toStrictEqual([
       testDataString,
       testDataNumber,
       testDataObject,
       testDataArray,
+    ]);
+  });
+
+  it('client.ws.subscribe <-- service.ws.emit', async() => {
+    const eventName = `someEvent${Math.random()}`
+
+    const serviceSocket = msg.service.ws(socketRoute);
+
+    const testData = [
+      testDataString,
+      testDataNumber,
+      testDataObject,
+      testDataArray,
+    ];
+
+    serviceSocket.on(cmd, () => {
+      testData.forEach(td => serviceSocket.emit(eventName, td));
     });
 
-    expect(serviceReceived).toStrictEqual([
-      testDataStringResponse,
-      testDataNumberResponse,
-      testDataObjectResponse,
-      testDataArrayResponse,
-    ]);
+    const clientReceived = await msg.runOnClient(({
+      nextPortBase,
+      socketRoute,
+      cmd,
+      eventName,
+    }) => new Promise(async(resolve) => {
+      const result = [];
+      const dealWithData = (data) => {
+        result.push(data);
+        if (result.length === 4) return resolve(result);
+      }
+      
+      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+
+      testSocket.subscribe(eventName, dealWithData);
+      await new Promise(r => setTimeout(r, 200));
+      testSocket.do(cmd, {});
+    }), {
+      nextPortBase,
+      socketRoute,
+      cmd,
+      eventName,
+    });
 
     expect(clientReceived).toStrictEqual([
       testDataString,

@@ -9,6 +9,7 @@ module.exports = function wsCreator(msgOptions){
       connections: [],
       connectionsByKey: {},
       distObjs: {},
+      subscriptions: {},
       errorHandler: (...args) => {msgOptions.wsRoutes[route].evtHandlers.error.forEach(fn => fn(...args));},
     };
 
@@ -190,7 +191,14 @@ module.exports = function wsCreator(msgOptions){
 
     // onEvt('close', function(connection){
     // });
+    on(...require('./msWsSubscribeHandler')(msgOptions, route));
+    on(...require('./msWsUnsubscribeHandler')(msgOptions, route));
 
+    const emit = (eventName, data) => {
+      const subscriptions = msgOptions.wsRoutes[route].subscriptions[eventName];
+      if (!subscriptions) return;
+      subscriptions.forEach(({ comms }) => comms.data(data));
+    };
 
     return {
       on: on,
@@ -198,6 +206,7 @@ module.exports = function wsCreator(msgOptions){
       connections: msgOptions.wsRoutes[route].connections,
       connectionsByKey: msgOptions.wsRoutes[route].connectionsByKey,
       distObj,
+      emit,
     };
   };
 };

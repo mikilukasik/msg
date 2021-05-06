@@ -33,6 +33,7 @@ export const msgClient = (
     console.log('MSG Client starting...');
 
     var msgClient = {
+      log: msgOptions.log,
       cookies: require('./lib/cookies'),
       sharedWorker(scriptLocation){
         console.log('Starting MSG Shared Worker from ' + scriptLocation);
@@ -44,6 +45,7 @@ export const msgClient = (
           onConnect: () => {},
           onReConnect: () => {},
           connectCount: 0,
+          subscribedTo: {},
         };
 
         var waitForConnect = function () {
@@ -294,7 +296,6 @@ export const msgClient = (
             set: function (obj, prop, value) {
               // The default behavior to store the value
               obj[prop] = value;
-
               waitForInitValues()
                 .then(
                   readOnlyClients
@@ -400,12 +401,35 @@ export const msgClient = (
           };
         }
 
+        function subscribe(cmd, handler){
+          var argObj = { cmd, handler };
+      
+          wsOptions.subscribedTo[argObj.cmd] = {
+            cmd,
+            argObj: argObj,
+            handler,
+          };
+      
+          return objDo('msg:subscribe', { event: cmd }, function(comms){
+            comms.onData(function(data){
+              wsOptions.subscribedTo[cmd].handler(data);
+            });
+          });
+        };
+
+        function unsubscribe(cmd){
+          delete wsOptions.subscribedTo[argObj.cmd];
+          return objDo('msg:unsubscribe', { event: cmd });
+        };
+
         return {
           do: objDo,
           on: objOn,
           distObj: distObj,
           onConnect: (fn) => wsOptions.onConnect = fn,
           onReConnect: (fn) => wsOptions.onReConnect = fn,
+          subscribe,
+          unsubscribe,
           options: wsOptions,
         };
       },
