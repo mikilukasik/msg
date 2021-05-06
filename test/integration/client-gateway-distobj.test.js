@@ -182,6 +182,44 @@ describe('client <--> service distObj', () => {
     expect(serviceDistObj.data).toStrictEqual({ fromClientStrore: 'test', secondKey: 'secondData' });
   });
 
+  it(`service can create distobj that can't be modified from the client`, async() => {
+    const serviceSocket = msg.service.ws(socketRoute);
+    const serviceDistObj = serviceSocket.distObj({
+      name: distObjName,
+      readOnlyClients: true,
+    });
+    serviceDistObj.data.testKey = 'testData';
+
+    const firstClientData = await msg.runOnClient(async({
+      nextPortBase,
+      socketRoute,
+      distObjName,
+    }) => new Promise(async(resolve) => {
+      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+      window.distObjStore = {};
+      window.clientDistObj = testSocket.distObj({
+        name: distObjName,
+        store: window.distObjStore,
+      });
+
+      await window.clientDistObj.waitForReady();
+      return resolve(window.distObjStore)
+    }), {
+      nextPortBase,
+      socketRoute,
+      distObjName,
+    });
+
+    expect(firstClientData).toStrictEqual({ testKey: 'testData' });
+
+    await msg.runOnClient(async() => {
+      window.clientDistObj.data.secondKey = 'secondData'
+      await new Promise(r => setTimeout(r, 250));
+    });
+
+    expect(serviceDistObj.data).toStrictEqual({ testKey: 'testData' });
+  });
+
   it('service distobj picks up nested change from client', async() => {
     const serviceSocket = msg.service.ws(socketRoute);
     const serviceDistObj = serviceSocket.distObj(distObjName);

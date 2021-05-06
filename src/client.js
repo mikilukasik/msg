@@ -258,8 +258,11 @@ export const msgClient = (
 
         function distObj(_options) {
           let gotInitValue = false;
+          let readOnlyClients = false;
+
           const waitForInitValues = () => new Promise((res, rej) => {
             const check = () => {
+              // TODO: there are better ways than recursive timeout loops...
               if (gotInitValue) return res();
               msgOptions.timeoutIds.waitForInitValues = setTimeout(check, 100);
             };
@@ -294,9 +297,9 @@ export const msgClient = (
 
               waitForInitValues()
                 .then(
-                  () => {
-                    return objDo('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value });
-                  }
+                  readOnlyClients
+                    ? () => {}
+                    : () => objDo('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, value })
                 )
                 .then(function (re) {
                   options.onChange.forEach(fn => fn({ prop, value, self: true }));
@@ -320,7 +323,11 @@ export const msgClient = (
             },
             deleteProperty: function(obj, prop) {
               delete obj[prop];
-              objDo('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, deleted: true }).then(function (){
+              
+              ( readOnlyClients
+                ? Promise.resolve()
+                : objDo('$$MSG_DISTOBJ_CHANGE_' + options.name, { name: options.name, prop, deleted: true })
+              ).then(function (){
                 options.onChange.forEach(fn => fn({ prop, deleted: true, self: true }));
               }, console.error);
               return true;
@@ -329,7 +336,8 @@ export const msgClient = (
 
           if (options.dontGetInitVal) gotInitValue = true;
           if (!options.dontGetInitVal) objDo('$$MSG_GET_DISTOBJ_' + options.name, { name: options.name, value: options.store }).then(
-            obj => {
+            ({ store: obj, readOnlyClients: _readOnlyClients }) => {
+              readOnlyClients = _readOnlyClients;
               Object.keys(obj).forEach(k => {
                 options.store[k] = obj[k];
                 if (typeof obj[k] === 'object') {
