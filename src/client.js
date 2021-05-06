@@ -1,4 +1,5 @@
 const getRandomId = require('./lib/getRandomId.js');
+const isFunction = require('./lib/isfunction.js');
 
 export const msgClient = (
   function createMsgService(optionalOptions) {
@@ -167,7 +168,10 @@ export const msgClient = (
             msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
           },
           do: function (message) {
-            var thisHandler = msgOptions.mySocketRules[message.argObj.cmd].handler;
+            var thisRule = msgOptions.mySocketRules[message.argObj.cmd];
+            if (!thisRule) throw new Error(`Could not find rule for command ${message.argObj.cmd} on socket route ${route}`);
+
+            const thisHandler = thisRule.handler;
             var newArgObj = message.argObj;
             thisHandler(newArgObj.data, {
               message: message,
@@ -267,7 +271,7 @@ export const msgClient = (
             }
             : _options;
 
-          if (typeof options.onChange === 'function') options.onChange = [options.onChange];
+          if (isFunction(options.onChange === 'function')) options.onChange = [options.onChange];
           if (!options.onChange) options.onChange = [];
           if (!options.store) options.store = {};
 
@@ -344,7 +348,7 @@ export const msgClient = (
             msgOptions.log
           );
 
-          console.log('signing up for $$MSG_DISTOBJ_CHANGE_' + options.name); 
+          // console.log('signing up for $$MSG_DISTOBJ_CHANGE_' + options.name); 
           objOn('$$MSG_DISTOBJ_CHANGE_' + options.name, function (data, comms) {
 
             const prop = data.prop;
