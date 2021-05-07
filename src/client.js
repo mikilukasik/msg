@@ -418,7 +418,7 @@ export const msgClient = (
         };
 
         function unsubscribe(cmd){
-          delete wsOptions.subscribedTo[argObj.cmd];
+          delete wsOptions.subscribedTo[cmd];
           return objDo('msg:unsubscribe', { event: cmd });
         };
 
