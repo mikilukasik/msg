@@ -34,7 +34,7 @@ describe('client .do and .on, response with comms.send()', () => {
   beforeEach(async function() {
     nextPortBase += 10;
     cmd = `someCommand${Math.random()}`;
-    socketRoute = `/${Math.random().toString(20).substr(2, 8)}`
+    socketRoute = `/${Math.random().toString(20).substr(2, 8)}`;
     testDataString = `some string ${Math.random()}`;
     testDataNumber = Math.random();
     testDataObject = { [testDataString]: testDataNumber };
@@ -139,6 +139,53 @@ describe('client .do and .on, response with comms.send()', () => {
       testDataArrayResponse,
     ]);
   });
+
+  it('multiple socket routes, matching rule names client.do <--> service.on', async() => {
+    const secondSocketRoute = `/${Math.random().toString(20).substr(2, 8)}`;
+
+    const serviceSocket1 = msg.service.ws(socketRoute);
+    const serviceSocket2 = msg.service.ws(secondSocketRoute);
+
+    serviceSocket1.on(cmd, (data, comms) => {
+      expect(data).toBe(testDataString);
+      comms.send(testDataStringResponse);
+    });
+
+    serviceSocket2.on(cmd, (data, comms) => {
+      expect(data).toBe(testDataNumber);
+      comms.send(testDataNumberResponse);
+    });
+
+    const clientResponse = await msg.runOnClient(({
+      nextPortBase,
+      socketRoute,
+      secondSocketRoute,
+      cmd,
+      testDataString,
+      testDataNumber,
+    }) => {
+      const testSocket1 = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+      const testSocket2 = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${secondSocketRoute}`);
+      return Promise.all([
+        testSocket1.do(cmd, testDataString),
+        testSocket2.do(cmd, testDataNumber),
+      ])
+    }, {
+      nextPortBase,
+      socketRoute,
+      secondSocketRoute,
+      cmd,
+      testDataString,
+      testDataNumber,
+    });
+
+    expect(clientResponse).toStrictEqual([
+      testDataStringResponse,
+      testDataNumberResponse,
+    ]);
+  });
+
+
 
   // TODO: the below only works one way. data/onData needs to work both ways
   it('client.do service.on in-flight data from service to client', async() => {

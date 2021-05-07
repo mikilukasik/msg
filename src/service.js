@@ -54,6 +54,7 @@ module.exports = function createMsgService(optionalOptions){
     serviceId: getRandomId(),
     myRules: {},
     mySocketRules: {},
+    myPublicSocketRules: {},
     wsRoutes: {},
     waitingCbsByConvId: {},
     waitingErrHandlersByConvId: {},

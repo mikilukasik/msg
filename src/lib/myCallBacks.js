@@ -92,7 +92,9 @@ module.exports = function myCallbacksCreator(msgOptions){
       delete msgOptions.waitingErrHandlersByConvId[message.conversationId];
     },
     do: function(message){
-      var thisRule = msgOptions.mySocketRules[message.argObj.cmd];
+      var thisRule = message.route
+        ? msgOptions.myPublicSocketRules[message.route][message.argObj.cmd]
+        : msgOptions.mySocketRules[message.argObj.cmd];
       if (!thisRule) {
         const split = message.argObj.cmd.split('\\');
         message.argObj.$$MSG_NEW = split[1];
