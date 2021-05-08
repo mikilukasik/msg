@@ -59,6 +59,11 @@ module.exports = function slaveFunctionsCreator(msgOptions){
           delete cConnectedKeys[key];
           log('client socket disconnected, route: ' + route + ' key: ' + key);
   
+          // remove pending conversations
+          Object.keys(msgOptions.conversations)
+            .filter(key => msgOptions.conversations[key].ws === ws)
+            .forEach(key => delete msgOptions.conversations[key]);
+
           let uwsIdx = msgOptions.publicSocketRoutes[route].usingWss.length;
           while (uwsIdx--) {
             const uws = msgOptions.publicSocketRoutes[route].usingWss[uwsIdx];
@@ -214,6 +219,40 @@ module.exports = function slaveFunctionsCreator(msgOptions){
         log({m: e.message}, e);
       }
     })
+
+    // resend any tasks that were not answere before a previous disconnect
+    const suspendedPerCommand = msgOptions.suspendedConversationsPerRoute[route];
+    if (!suspendedPerCommand) return;
+
+    Object.keys(suspendedPerCommand).forEach(cmd => {
+      const conversations = suspendedPerCommand[cmd];
+      let conversationIndex = conversations.length;
+      while (conversationIndex--) {
+        try{
+          usingWs.send(JSON.stringify({
+            cmd: 'do',
+            argObj: conversations[conversationIndex].argObj,
+            conversationId: conversations[conversationIndex].conversationId,
+            clientSocketKey: conversations[conversationIndex].clientSocketKey,
+            clientSocketRoute: conversations[conversationIndex].route,
+            route: conversations[conversationIndex].route,
+          }));
+        } catch (e) {
+          conversations[conversationIndex].ws.send(toStr({
+            cmd: 'error',
+            conversationId: conversations[conversationIndex].conversationId,
+            error: e,
+            message: e.message,
+            stack: e.stack,
+            clientSocketKey: conversations[conversationIndex].clientSocketKey,
+            clientSocketRoute: conversations[conversationIndex].route,
+            route: conversations[conversationIndex].route,
+          }));
+        }
+
+        conversations.splice(conversationIndex, 1)
+      }
+    });
   }
 
   return useClientSocketRoute;

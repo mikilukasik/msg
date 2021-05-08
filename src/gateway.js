@@ -61,6 +61,7 @@ module.exports = function createMsgGateway (options){
 
     // TODO: make the below a proxy with setTimeout delete when inactive!!!!!! LEAK!!
     conversations: {},  // all active conversations we are part of (LEAK???!!!!!!!)
+    suspendedConversationsPerRoute: {}, // client sent a .do, but service disconnected before answering. these will be resent when handler reconnects (all .subscribe will reopen then)
     gateways: {},
     timeoutIds: {},
     intervalIds: {},
