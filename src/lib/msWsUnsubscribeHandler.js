@@ -8,9 +8,11 @@ module.exports = function handlerCreator(msgOptions, route) {
     if (!event || event === 'undefined') log( new Error('event cannot be undefined') )
 
     const indexToRemove = msgOptions.wsRoutes[route].subscriptions[event].findIndex(({ key }) => key === comms.key);
-    const subscribeHandlerComms = msgOptions.wsRoutes[route].subscriptions[event][indexToRemove].comms;
+    const subscribeHandler = msgOptions.wsRoutes[route].subscriptions[event][indexToRemove];
+    // TODO: subscribehandler sometimes is undefined. wonder why..
+
     msgOptions.wsRoutes[route].subscriptions[event].splice(indexToRemove, 1);
-    subscribeHandlerComms.send('unsubscribed');
+    if (subscribeHandler && subscribeHandler.comms) subscribeHandler.comms.send('unsubscribed');
     comms.send('ok')
   };
 
