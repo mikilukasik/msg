@@ -2,6 +2,8 @@ import expect from 'expect';
 import _msgService from '../../src/service';
 import _msgGateway from '../../src/gateway';
 
+const DISABLE_LOGS = true;
+
 let msg;
 let cmd;
 let testDataString;
@@ -15,10 +17,13 @@ let testDataArrayResponse;
 
 let nextPortBase = 17000;
 
-const getLogger = (prefix) => (...args) => {}; // console.log(prefix, ...args);
+const getLogger =
+  (prefix) =>
+  (...args) =>
+    DISABLE_LOGS ? {} : console.log(prefix, ...args);
 
 describe('service <--> service: .do and .on, response with comms.send()', () => {
-  beforeEach(async function() {
+  beforeEach(async function () {
     nextPortBase += 10;
     cmd = `someCommand${Math.random()}`;
     testDataString = `some string ${Math.random()}`;
@@ -67,53 +72,71 @@ describe('service <--> service: .do and .on, response with comms.send()', () => 
     msg = _msg;
   });
 
-  afterEach(async() => {
+  afterEach(async () => {
     await msg.service1.close();
     await msg.service2.close();
     await msg.gateway.close();
   });
 
-  it('.do sends string data to .on and receives string answer', async() => {
+  it('.do sends string data to .on and receives string answer', async () => {
     msg.service1.on(cmd, (data, comms) => {
       expect(data).toBe(testDataString);
       comms.send(testDataStringResponse);
     });
-    return msg.service2.do(cmd, testDataString)
-      .then(response => {
-        expect(response).toStrictEqual(testDataStringResponse);
-      });
+    return msg.service2.do(cmd, testDataString).then((response) => {
+      expect(response).toStrictEqual(testDataStringResponse);
+    });
   });
-  
-  it('.do sends number data to .on and receives number answer', async() => {
+
+  it('.do sends number data to .on and receives number answer', async () => {
     msg.service1.on(cmd, (data, comms) => {
       expect(data).toBe(testDataNumber);
       comms.send(testDataNumberResponse);
     });
-    return msg.service2.do(cmd, testDataNumber)
-      .then(response => {
-        expect(response).toStrictEqual(testDataNumberResponse);
-      });
+    return msg.service2.do(cmd, testDataNumber).then((response) => {
+      expect(response).toStrictEqual(testDataNumberResponse);
+    });
   });
 
-  it('.do sends object data to .on and receives object answer', async() => {
+  it('.do sends object data to .on and receives object answer', async () => {
     msg.service1.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataObject);
       comms.send(testDataObjectResponse);
     });
-    return msg.service2.do(cmd, testDataObject)
-      .then(response => {
-        expect(response).toStrictEqual(testDataObjectResponse);
-      });
+    return msg.service2.do(cmd, testDataObject).then((response) => {
+      expect(response).toStrictEqual(testDataObjectResponse);
+    });
   });
 
-  it('.do sends array data to .on and receives array answer', async() => {
+  it('.do sends array data to .on and receives array answer', async () => {
     msg.service1.on(cmd, (data, comms) => {
       expect(data).toStrictEqual(testDataArray);
       comms.send(testDataArrayResponse);
     });
-    return msg.service2.do(cmd, testDataArray)
-      .then(response => {
-        expect(response).toStrictEqual(testDataArrayResponse);
-      });
+    return msg.service2.do(cmd, testDataArray).then((response) => {
+      expect(response).toStrictEqual(testDataArrayResponse);
+    });
+  });
+
+  it('.do sends mid-flight data to .on onData handler', async () => {
+    msg.service1.on(cmd, (data, comms) => {
+      comms.onData((data) => expect(data).toStrictEqual(testDataObject));
+      setTimeout(() => {
+        comms.send('ok').catch(console.error);
+      }, 100);
+    });
+    return msg.service2.do(cmd, testDataArray, (comms) => {
+      comms.data(testDataObject).catch(console.error);
+    });
+  });
+
+  it('.on sends mid-flight data to .do onData handler', async () => {
+    msg.service1.on(cmd, (data, comms) => {
+      comms.data(testDataObject);
+      comms.send('ok');
+    });
+    return msg.service2.do(cmd, testDataArray, (comms) => {
+      comms.onData((data) => expect(data).toStrictEqual(testDataObject));
+    });
   });
 });

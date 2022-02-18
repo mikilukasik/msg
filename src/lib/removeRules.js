@@ -1,13 +1,11 @@
-
-module.exports = function removeRulesCreator(msgOptions){
-
+module.exports = function removeRulesCreator(msgOptions) {
   var log = msgOptions.log || console.log;
 
-  function removeRules (confobj) {
-    if(!confobj) confobj = {};
+  function removeRules(confobj) {
+    if (!confobj) confobj = {};
 
     // the below removes the disconnected sockets from the rule's usingWss array
-    Object.keys(msgOptions.publicSocketRoutes).forEach(route => {
+    Object.keys(msgOptions.publicSocketRoutes).forEach((route) => {
       let uwssI = msgOptions.publicSocketRoutes[route].usingWss.length;
       while (uwssI--) {
         if (msgOptions.publicSocketRoutes[route].usingWss[uwssI].readyState > 1) {
@@ -16,11 +14,11 @@ module.exports = function removeRulesCreator(msgOptions){
       }
     });
 
-    if(confobj.ownerMatch){
+    if (confobj.ownerMatch) {
       var i = msgOptions.convertedDirectRules.length;
       while (i--) {
         var thisRule = msgOptions.convertedDirectRules[i];
-        if (thisRule.owner.indexOf( confobj.ownerMatch ) >= 0) {
+        if (thisRule.owner.indexOf(confobj.ownerMatch) >= 0) {
           msgOptions.convertedDirectRules.splice(i, 1);
 
           // store uncompleted .do -> .on tasks for res-sending them
@@ -31,28 +29,34 @@ module.exports = function removeRulesCreator(msgOptions){
           };
 
           const pendingConversations = Object.keys(msgOptions.conversations)
-            .map(key => msgOptions.conversations[key])
-            .filter(({ clientSocketRoute, argObj: { cmd } }) => clientSocketRoute === requiredHandler.publicSocketRoute && cmd === requiredHandler.cmd);
+            .map((key) => msgOptions.conversations[key])
+            .filter(
+              ({ clientSocketRoute, argObj: { cmd } }) =>
+                clientSocketRoute === requiredHandler.publicSocketRoute && cmd === requiredHandler.cmd,
+            );
           if (!pendingConversations.length) continue;
-
+          // console.log('bababa');
           if (!msgOptions.suspendedConversationsPerRoute[requiredHandler.publicSocketRoute]) {
             msgOptions.suspendedConversationsPerRoute[requiredHandler.publicSocketRoute] = {};
           }
-          
+
           if (!msgOptions.suspendedConversationsPerRoute[requiredHandler.publicSocketRoute][requiredHandler.cmd]) {
             msgOptions.suspendedConversationsPerRoute[requiredHandler.publicSocketRoute][requiredHandler.cmd] = [];
           }
-
-          msgOptions.suspendedConversationsPerRoute[requiredHandler.publicSocketRoute][requiredHandler.cmd].push(...pendingConversations);
+          console.log('will push something', requiredHandler.cmd);
+          msgOptions.suspendedConversationsPerRoute[requiredHandler.publicSocketRoute || 'serviceToService'][
+            requiredHandler.cmd
+          ].push(...pendingConversations);
         }
       }
 
       for (var route in msgOptions.httpRoutes) {
         var j = msgOptions.httpRoutes[route].length;
         while (j--) {
-          if (msgOptions.httpRoutes[route][j].rule.owner.indexOf( confobj.ownerMatch ) >= 0) msgOptions.httpRoutes[route].splice(j, 1);
+          if (msgOptions.httpRoutes[route][j].rule.owner.indexOf(confobj.ownerMatch) >= 0)
+            msgOptions.httpRoutes[route].splice(j, 1);
         }
-      } 
+      }
     }
   }
   return removeRules;

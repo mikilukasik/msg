@@ -1,25 +1,55 @@
-module.exports = function toGtwCreator(msgOptions){
+const getRandomId = require('./getRandomId.js');
 
-  return function toGtw(cmd, data, conversationId){
-    return new Promise(function(res3, rej3){
-      try {
-        msgOptions.waitForConnection()
-          .then(function(){
-            
-            return msgOptions.connection.send(JSON.stringify(Object.assign({
-              cmd: cmd,
-              data: data,
-              owner: msgOptions.serviceLongName,
-              conversationId: conversationId,            
-              serviceName: msgOptions.serviceName,
-              serviceLongName: msgOptions.serviceLongName,
-            }, data)));
-          
-          }, rej3 ).then(res3, rej3);
-      } catch (te) {
-        rej3(te);
-      }
+const RECEIPT_TIMEOUT = 5000;
+
+module.exports = function toGtwCreator(msgOptions) {
+  return function toGtw(cmd, data, conversationId, { confirmReceipt = false } = {}) {
+    return new Promise(function (resolve, reject) {
+      msgOptions.waitForConnection().then(function () {
+        let confirmReceiptId;
+        if (confirmReceipt) {
+          confirmReceiptId = getRandomId();
+
+          const timeOutId = setTimeout(() => {
+            if (msgOptions.toGtwConfirmers[confirmReceiptId]) {
+              delete msgOptions.toGtwConfirmers[confirmReceiptId];
+              return reject(new Error(`toGtw timed out: ${cmd}: ${data.argObj && data.argObj.cmd}`));
+            }
+          }, RECEIPT_TIMEOUT);
+
+          msgOptions.toGtwConfirmers[confirmReceiptId] = {
+            resolve: (data) => {
+              clearTimeout(timeOutId);
+              return resolve(data);
+            },
+            reject: (error) => {
+              clearTimeout(timeOutId);
+              return reject(error);
+            },
+          };
+        }
+
+        try {
+          msgOptions.connection.send(
+            JSON.stringify(
+              Object.assign(
+                {
+                  cmd: cmd,
+                  data: data,
+                  owner: msgOptions.serviceLongName,
+                  conversationId: conversationId,
+                  serviceName: msgOptions.serviceName,
+                  serviceLongName: msgOptions.serviceLongName,
+                  confirmReceiptId,
+                },
+                data,
+              ),
+            ),
+          );
+        } catch (e) {
+          reject(e);
+        }
+      });
     });
   };
-
 };

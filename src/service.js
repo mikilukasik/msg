@@ -57,6 +57,8 @@ module.exports = function createMsgService(optionalOptions) {
     myRules: {},
     mySocketRules: {},
     myPublicSocketRules: {},
+    toGtwConfirmers: {},
+
     wsRoutes: {},
     waitingCbsByConvId: {},
     waitingErrHandlersByConvId: {},
@@ -127,7 +129,7 @@ module.exports = function createMsgService(optionalOptions) {
   //   log('Serving dump file on /dumps' + filename);
   // };
 
-  log('MSG Service created.');
+  // log('MSG Service created.');
 
   return msgOptions.obj;
 };
