@@ -120,7 +120,7 @@ const handleDo = async ({ msgOptions, message, ws, key }) => {
     );
   } catch (e) {
     console.log(e);
-    if (ws)
+    if (ws && ws.readyState <= 1)
       ws.send(
         toStr({
           cmd: 'error',
