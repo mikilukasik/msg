@@ -191,10 +191,10 @@ export const msgClient = (function createMsgService(optionalOptions) {
             message: message,
             conversationId: message.conversationId,
             send: function (data) {
-              toGtw('answer', data, message.conversationId, { confirmReceipt: true });
+              return toGtw('answer', data, message.conversationId, { confirmReceipt: true });
             },
             error: function (err) {
-              toGtw('error', err, message.conversationId);
+              return toGtw('error', err, message.conversationId);
             },
           });
         },
