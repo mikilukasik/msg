@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:integration && npm run test:performance",
-    "build-dev": "webpack --mode=development",
+    "build-dev": "webpack --mode=development --stats-children",
     "build": "webpack --mode=production",
     "test:integration": "NODE_ENV=test npm run build && npx mocha --require esm --trace-warnings . test/integration",
     "test:performance": "npm run test-dep:performance && npx mocha --require esm --trace-warnings . test/performance",
