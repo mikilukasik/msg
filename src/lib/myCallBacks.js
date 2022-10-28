@@ -6,7 +6,10 @@ module.exports = function myCallbacksCreator(msgOptions) {
       if (!resolve) return; // confirmReceipt was false
 
       if (message.error) {
-        reject(new Error(message.error));
+        // this rejects throws uncaught errors :(
+        // reject(new Error(message.error));
+        console.error(new Error(message.error));
+
         delete msgOptions.toGtwConfirmers[message.confirmReceiptId];
       }
       resolve({ success: message.success });

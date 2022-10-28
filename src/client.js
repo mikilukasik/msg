@@ -65,7 +65,7 @@ export const msgClient = (function createMsgService(optionalOptions) {
         msgOptions.wsRoutes[route].ws = ws;
 
         ws.onopen = function (openEvent) {
-          msgOptions.log('WS route ' + route + ' connected.');
+          // msgOptions.log('WS route ' + route + ' connected.');
           if (wsOptions.connectCount) wsOptions.onReConnect(openEvent);
           wsOptions.connectCount += 1;
           wsOptions.onConnect(openEvent);

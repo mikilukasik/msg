@@ -1,6 +1,6 @@
 const getRandomId = require('./getRandomId.js');
 
-const RECEIPT_TIMEOUT = 5000;
+const RECEIPT_TIMEOUT = 15000;
 
 module.exports = function toGtwCreator(msgOptions) {
   return function toGtw(cmd, data, conversationId, { confirmReceipt = false } = {}) {
