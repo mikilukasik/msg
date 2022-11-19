@@ -195,7 +195,10 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
           break;
 
         case 'dataToClient':
-          const clientWsx = msgOptions.conversations[message.conversationId].clientWs;
+          const clientWsx = msgOptions.conversations[message.conversationId]?.clientWs;
+          if (!clientWsx) {
+            break;
+          }
 
           if (clientWsx && clientWsx.readyState <= 1) {
             clientWsx.send(

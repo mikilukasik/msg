@@ -181,7 +181,8 @@ export const msgClient = (function createMsgService(optionalOptions) {
           msgOptions.waitingHandlersByConvId[message.conversationId].errorHandler(message.data);
         },
         data: (message) => {
-          msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
+          if (msgOptions.waitingHandlersByConvId[message.conversationId])
+            msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler(message.data);
         },
         do: function (message) {
           var thisRule = msgOptions.mySocketRules[message.argObj.cmd];
