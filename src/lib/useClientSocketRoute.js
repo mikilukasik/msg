@@ -179,6 +179,24 @@ module.exports = function slaveFunctionsCreator(msgOptions) {
 
               break;
 
+            case 'data':
+              var conv = msgOptions.conversations[msg.conversationId];
+              if (!conv || !conv.ws || conv.ws.readyState > 1) {
+                delete msgOptions.conversations[msg.conversationId];
+                break;
+              }
+              conv.ws.send(
+                JSON.stringify({
+                  cmd: 'data',
+                  data: msg.data,
+                  conversationId: msg.conversationId,
+                  clientSocketRoute: route,
+                  clientSocketKey: key,
+                }),
+              );
+
+              break;
+
             case 'error':
               var convE = msgOptions.conversations[msg.conversationId];
               if (!convE || convE.ws.readyState > 1) {

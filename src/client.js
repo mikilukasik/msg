@@ -165,6 +165,9 @@ export const msgClient = (function createMsgService(optionalOptions) {
       }
 
       var myCallBacks = {
+        // dataToClient: (message) => {
+        //   // throw message;
+        // },
         doStarted: function doStarted(message) {
           msgOptions.waitingCbsByConvId[message.tempConversationId](message);
           delete msgOptions.waitingCbsByConvId[message.tempConversationId];
@@ -185,16 +188,27 @@ export const msgClient = (function createMsgService(optionalOptions) {
           if (!thisRule)
             throw new Error(`Could not find rule for command ${message.argObj.cmd} on socket route ${route}`);
 
+          msgOptions.waitingHandlersByConvId[message.conversationId] = {
+            dataHandler: () => {},
+          };
+
           const thisHandler = thisRule.handler;
           var newArgObj = message.argObj;
           thisHandler(newArgObj.data, {
             message: message,
             conversationId: message.conversationId,
             send: function (data) {
+              delete msgOptions.waitingHandlersByConvId[message.conversationId];
               return toGtw('answer', data, message.conversationId, { confirmReceipt: true });
             },
             error: function (err) {
+              delete msgOptions.waitingHandlersByConvId[message.conversationId];
               return toGtw('error', err, message.conversationId);
+            },
+            onData: (dataHandler) =>
+              (msgOptions.waitingHandlersByConvId[message.conversationId].dataHandler = dataHandler),
+            data: (dataToService) => {
+              return toGtw('data', dataToService, message.conversationId, { confirmReceipt: false });
             },
           });
         },

@@ -194,6 +194,21 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
           handleDo({ msgOptions, message, ws, key });
           break;
 
+        case 'dataToClient':
+          const clientWsx = msgOptions.conversations[message.conversationId].clientWs;
+
+          if (clientWsx && clientWsx.readyState <= 1) {
+            clientWsx.send(
+              JSON.stringify({
+                cmd: 'data',
+                data: message.data,
+                conversationId: message.conversationId,
+              }),
+            );
+          }
+
+          break;
+
         case 'wsDo':
           var newWsConversationId = 'made-on-' + msgOptions.serviceLongName + '-cid-' + getRandomId();
 
@@ -221,6 +236,7 @@ module.exports = function mgSocketRouteCreator(msgOptions) {
             argObj: message.argObj,
             conversationId: newWsConversationId,
             ws,
+            handlerWs: ws,
             type: 'wsDo',
             clientWs,
             clientSocketKey: message.clientSocketKey,

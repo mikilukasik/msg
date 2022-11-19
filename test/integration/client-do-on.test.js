@@ -23,15 +23,18 @@ let testDataArrayResponse;
 
 let nextPortBase = 21000;
 
-const getLogger = (prefix) => (...args) => console.log(prefix, ...args);
+const getLogger =
+  (prefix) =>
+  (...args) =>
+    console.log(prefix, ...args);
 
 describe('client .do and .on, response with comms.send()', () => {
-  before(async() => {
+  before(async () => {
     client = getClient();
     await client.start();
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     nextPortBase += 10;
     cmd = `someCommand${Math.random()}`;
     socketRoute = `/${Math.random().toString(20).substr(2, 8)}`;
@@ -69,25 +72,25 @@ describe('client .do and .on, response with comms.send()', () => {
     await _msg.gateway.start();
     await _msg.service.connect();
 
-    const { page ,evaluate } = await client.getNewPage({ logger: SHOW_CLIENT_LOGS ? console : null });
+    const { page, evaluate } = await client.getNewPage({ logger: SHOW_CLIENT_LOGS ? console : null });
     _msg.runOnClient = evaluate;
     _msg.clientPage = page;
 
     msg = _msg;
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     this.timeout(10000);
     await msg.clientPage.close();
     await msg.service.close();
     await msg.gateway.close();
   });
 
-  after(async() => {
+  after(async () => {
     await client.stop();
   });
 
-  it('client.do sends data to service.on and receives answer', async() => {
+  it('client.do sends data to service.on and receives answer', async () => {
     const serviceSocket = msg.service.ws(socketRoute);
     serviceSocket.on(`${cmd}-string`, (data, comms) => {
       expect(data).toBe(testDataString);
@@ -106,31 +109,26 @@ describe('client .do and .on, response with comms.send()', () => {
       comms.send(testDataArrayResponse);
     });
 
-    const response = await msg.runOnClient(({
-      nextPortBase,
-      socketRoute,
-      cmd,
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    }) => {
-      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
-      return Promise.all([
-        testSocket.do(`${cmd}-string`, testDataString),
-        testSocket.do(`${cmd}-number`, testDataNumber),
-        testSocket.do(`${cmd}-object`, testDataObject),
-        testSocket.do(`${cmd}-array`, testDataArray),
-      ])
-    }, {
-      nextPortBase,
-      socketRoute,
-      cmd,
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    });
+    const response = await msg.runOnClient(
+      ({ nextPortBase, socketRoute, cmd, testDataString, testDataNumber, testDataObject, testDataArray }) => {
+        const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+        return Promise.all([
+          testSocket.do(`${cmd}-string`, testDataString),
+          testSocket.do(`${cmd}-number`, testDataNumber),
+          testSocket.do(`${cmd}-object`, testDataObject),
+          testSocket.do(`${cmd}-array`, testDataArray),
+        ]);
+      },
+      {
+        nextPortBase,
+        socketRoute,
+        cmd,
+        testDataString,
+        testDataNumber,
+        testDataObject,
+        testDataArray,
+      },
+    );
 
     expect(response).toStrictEqual([
       testDataStringResponse,
@@ -140,7 +138,7 @@ describe('client .do and .on, response with comms.send()', () => {
     ]);
   });
 
-  it('multiple socket routes, matching rule names client.do <--> service.on', async() => {
+  it('multiple socket routes, matching rule names client.do <--> service.on', async () => {
     const secondSocketRoute = `/${Math.random().toString(20).substr(2, 8)}`;
 
     const serviceSocket1 = msg.service.ws(socketRoute);
@@ -156,174 +154,145 @@ describe('client .do and .on, response with comms.send()', () => {
       comms.send(testDataNumberResponse);
     });
 
-    const clientResponse = await msg.runOnClient(({
-      nextPortBase,
-      socketRoute,
-      secondSocketRoute,
-      cmd,
-      testDataString,
-      testDataNumber,
-    }) => {
-      const testSocket1 = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
-      const testSocket2 = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${secondSocketRoute}`);
-      return Promise.all([
-        testSocket1.do(cmd, testDataString),
-        testSocket2.do(cmd, testDataNumber),
-      ])
-    }, {
-      nextPortBase,
-      socketRoute,
-      secondSocketRoute,
-      cmd,
-      testDataString,
-      testDataNumber,
-    });
+    const clientResponse = await msg.runOnClient(
+      ({ nextPortBase, socketRoute, secondSocketRoute, cmd, testDataString, testDataNumber }) => {
+        const testSocket1 = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+        const testSocket2 = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${secondSocketRoute}`);
+        return Promise.all([testSocket1.do(cmd, testDataString), testSocket2.do(cmd, testDataNumber)]);
+      },
+      {
+        nextPortBase,
+        socketRoute,
+        secondSocketRoute,
+        cmd,
+        testDataString,
+        testDataNumber,
+      },
+    );
 
-    expect(clientResponse).toStrictEqual([
-      testDataStringResponse,
-      testDataNumberResponse,
-    ]);
+    expect(clientResponse).toStrictEqual([testDataStringResponse, testDataNumberResponse]);
   });
-
-
 
   // TODO: the below only works one way. data/onData needs to work both ways
-  it('client.do service.on in-flight data from service to client', async() => {
+  it('client.do service.on in-flight data from service to client', async () => {
     const serviceSocket = msg.service.ws(socketRoute);
 
-    const testData = [
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    ];
+    const testData = [testDataString, testDataNumber, testDataObject, testDataArray];
 
     serviceSocket.on(`${cmd}`, (data, comms) => {
-      testData.forEach(td => comms.data(td))
+      testData.forEach((td) => comms.data(td));
     });
 
-    const clientReceived = await msg.runOnClient(({
-      nextPortBase,
-      socketRoute,
-      cmd,
-    }) => new Promise((resolve) => {
-      const result = [];
-      const dealWithData = (data) => {
-        result.push(data);
-        if (result.length === 4) return resolve(result);
-      }
-      
-      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
-      testSocket.do(cmd, {}, (comms) => {
-        comms.onData((data) => {
-          dealWithData(data);
-        });
-      });
-    }), {
-      nextPortBase,
-      socketRoute,
-      cmd,
-    });
+    const clientReceived = await msg.runOnClient(
+      ({ nextPortBase, socketRoute, cmd }) =>
+        new Promise((resolve) => {
+          const result = [];
+          const dealWithData = (data) => {
+            result.push(data);
+            if (result.length === 4) return resolve(result);
+          };
 
-    expect(clientReceived).toStrictEqual([
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    ]);
+          const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+          testSocket.do(cmd, {}, (comms) => {
+            comms.onData((data) => {
+              dealWithData(data);
+            });
+          });
+        }),
+      {
+        nextPortBase,
+        socketRoute,
+        cmd,
+      },
+    );
+
+    expect(clientReceived).toStrictEqual([testDataString, testDataNumber, testDataObject, testDataArray]);
   });
 
-  it('client.ws.subscribe <-- service.ws.emit', async() => {
-    const eventName = `someEvent${Math.random()}`
+  it('client.ws.subscribe <-- service.ws.emit', async () => {
+    const eventName = `someEvent${Math.random()}`;
 
     const serviceSocket = msg.service.ws(socketRoute);
 
-    const testData = [
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    ];
+    const testData = [testDataString, testDataNumber, testDataObject, testDataArray];
 
     serviceSocket.on(cmd, () => {
-      testData.forEach(td => serviceSocket.emit(eventName, td));
+      testData.forEach((td) => serviceSocket.emit(eventName, td));
     });
 
-    const clientReceived = await msg.runOnClient(({
-      nextPortBase,
-      socketRoute,
-      cmd,
-      eventName,
-    }) => new Promise(async(resolve) => {
-      const result = [];
-      const dealWithData = (data) => {
-        result.push(data);
-        if (result.length === 4) return resolve(result);
-      }
-      
-      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+    const clientReceived = await msg.runOnClient(
+      ({ nextPortBase, socketRoute, cmd, eventName }) =>
+        new Promise(async (resolve) => {
+          const result = [];
+          const dealWithData = (data) => {
+            result.push(data);
+            if (result.length === 4) return resolve(result);
+          };
 
-      testSocket.subscribe(eventName, dealWithData);
-      await new Promise(r => setTimeout(r, 200));
-      testSocket.do(cmd, {});
-    }), {
-      nextPortBase,
-      socketRoute,
-      cmd,
-      eventName,
-    });
+          const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
 
-    expect(clientReceived).toStrictEqual([
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    ]);
+          testSocket.subscribe(eventName, dealWithData);
+          await new Promise((r) => setTimeout(r, 200));
+          testSocket.do(cmd, {});
+        }),
+      {
+        nextPortBase,
+        socketRoute,
+        cmd,
+        eventName,
+      },
+    );
+
+    expect(clientReceived).toStrictEqual([testDataString, testDataNumber, testDataObject, testDataArray]);
   });
 
-  it('service.connection.do sends data to client.on and receives answer', async() => {
+  it('service.connection.do sends data to client.on and receives answer', async () => {
     const serviceSocket = msg.service.ws(socketRoute);
 
-    const clientResponsePromise = msg.runOnClient(({
-      nextPortBase,
-      socketRoute,
-      cmd,
-      testDataStringResponse,
-      testDataNumberResponse,
-      testDataObjectResponse,
-      testDataArrayResponse,
-    }) => new Promise((resolve) => {
-      const result = [];
-      const dealWithData = (data) => {
-        result.push(data);
-        if (result.length === 4) return resolve(result);
-      }
-      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
-      testSocket.on(`${cmd}-string`, (data, comms) => {
-        comms.send(testDataStringResponse);
-        dealWithData(data);
-      });
-      testSocket.on(`${cmd}-number`, (data, comms) => {
-        comms.send(testDataNumberResponse);
-        dealWithData(data);
-      });
-      testSocket.on(`${cmd}-object`, (data, comms) => {
-        comms.send(testDataObjectResponse);
-        dealWithData(data);
-      });
-      testSocket.on(`${cmd}-array`, (data, comms) => {
-        comms.send(testDataArrayResponse);
-        dealWithData(data);
-      });
-    }), {
-      nextPortBase,
-      socketRoute,
-      cmd,
-      testDataStringResponse,
-      testDataNumberResponse,
-      testDataObjectResponse,
-      testDataArrayResponse,
-    });
+    const clientResponsePromise = msg.runOnClient(
+      ({
+        nextPortBase,
+        socketRoute,
+        cmd,
+        testDataStringResponse,
+        testDataNumberResponse,
+        testDataObjectResponse,
+        testDataArrayResponse,
+      }) =>
+        new Promise((resolve) => {
+          const result = [];
+          const dealWithData = (data) => {
+            result.push(data);
+            if (result.length === 4) return resolve(result);
+          };
+          const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+          testSocket.on(`${cmd}-string`, (data, comms) => {
+            comms.send(testDataStringResponse);
+            dealWithData(data);
+          });
+          testSocket.on(`${cmd}-number`, (data, comms) => {
+            comms.send(testDataNumberResponse);
+            dealWithData(data);
+          });
+          testSocket.on(`${cmd}-object`, (data, comms) => {
+            comms.send(testDataObjectResponse);
+            dealWithData(data);
+          });
+          testSocket.on(`${cmd}-array`, (data, comms) => {
+            comms.send(testDataArrayResponse);
+            dealWithData(data);
+          });
+        }),
+      {
+        nextPortBase,
+        socketRoute,
+        cmd,
+        testDataStringResponse,
+        testDataNumberResponse,
+        testDataObjectResponse,
+        testDataArrayResponse,
+      },
+    );
 
     const connection = await new Promise((res) => {
       const getConnection = () => {
@@ -349,54 +318,55 @@ describe('client .do and .on, response with comms.send()', () => {
     ]);
 
     const clientResponse = await clientResponsePromise;
-    expect(clientResponse).toStrictEqual([
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    ]);
+    expect(clientResponse).toStrictEqual([testDataString, testDataNumber, testDataObject, testDataArray]);
   });
 
-  // doesn't seem to be implemented
-  xit('service.connection.do client.on in-flight data', async() => {
+  it('service.connection.do client.on in-flight data', async () => {
     const serviceSocket = msg.service.ws(socketRoute);
 
-    const clientResponsePromise = msg.runOnClient(({
-      nextPortBase,
-      socketRoute,
-      cmd,
-      testDataStringResponse,
-      testDataNumberResponse,
-      testDataObjectResponse,
-      testDataArrayResponse,
-    }) => new Promise((resolve) => {
-      const result = [];
-      const dealWithData = (data) => {
-        result.push(data);
-        if (result.length === 4) return resolve(result);
-      }
-      const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
-      const responses = [
+    const clientResponsePromise = msg.runOnClient(
+      ({
+        nextPortBase,
+        socketRoute,
+        cmd,
         testDataStringResponse,
         testDataNumberResponse,
         testDataObjectResponse,
         testDataArrayResponse,
-      ];
-      testSocket.on(`${cmd}`, (data, comms) => {
-        comms.onData((data) => {
-          dealWithData(data);
-          comms.data(responses.shift());
-        });
-      });
-    }), {
-      nextPortBase,
-      socketRoute,
-      cmd,
-      testDataStringResponse,
-      testDataNumberResponse,
-      testDataObjectResponse,
-      testDataArrayResponse,
-    });
+      }) =>
+        new Promise((resolve) => {
+          const result = [];
+          const dealWithData = (data) => {
+            result.push(data);
+            if (result.length === 4)
+              return setTimeout(() => {
+                resolve(result);
+              }, 300);
+          };
+          const testSocket = msgClient.ws(`ws://0.0.0.0:${nextPortBase}${socketRoute}`);
+          const responses = [
+            testDataStringResponse,
+            testDataNumberResponse,
+            testDataObjectResponse,
+            testDataArrayResponse,
+          ];
+          testSocket.on(`${cmd}`, (data, comms) => {
+            comms.onData((data) => {
+              dealWithData(data);
+              comms.data(responses.shift());
+            });
+          });
+        }),
+      {
+        nextPortBase,
+        socketRoute,
+        cmd,
+        testDataStringResponse,
+        testDataNumberResponse,
+        testDataObjectResponse,
+        testDataArrayResponse,
+      },
+    );
 
     const connection = await new Promise((res) => {
       const getConnection = () => {
@@ -412,7 +382,7 @@ describe('client .do and .on, response with comms.send()', () => {
       const dealWithData = (data) => {
         result.push(data);
         if (result.length === 4) return resolve(result);
-      }
+      };
 
       connection.do(cmd, {}, (comms) => {
         comms.onData((data) => {
@@ -426,7 +396,6 @@ describe('client .do and .on, response with comms.send()', () => {
       });
     });
 
-
     expect(serviceResponse).toStrictEqual([
       testDataStringResponse,
       testDataNumberResponse,
@@ -435,11 +404,6 @@ describe('client .do and .on, response with comms.send()', () => {
     ]);
 
     const clientResponse = await clientResponsePromise;
-    expect(clientResponse).toStrictEqual([
-      testDataString,
-      testDataNumber,
-      testDataObject,
-      testDataArray,
-    ]);
+    expect(clientResponse).toStrictEqual([testDataString, testDataNumber, testDataObject, testDataArray]);
   });
 });

@@ -30,20 +30,6 @@ module.exports = function myCallbacksCreator(msgOptions) {
             },
           };
 
-          if (argObj.handler) {
-            var comms = {
-              onData: function (onDataCb) {
-                handlers.dataHandler = onDataCb;
-              },
-              // data: function (data) {
-              //   msgOptions.toGtw('data', {
-              //     conversationId:
-              //   });
-              // },
-            };
-            argObj.handler(comms);
-          }
-
           return new Promise(function (res, rej) {
             handlers.errorHandler = function (e) {
               rej(e);
@@ -62,6 +48,22 @@ module.exports = function myCallbacksCreator(msgOptions) {
                   };
 
                   msgOptions.waitingHandlersByConvId[askRes.conversationId] = handlers;
+
+                  if (argObj.handler) {
+                    var comms = {
+                      onData: function (onDataCb) {
+                        handlers.dataHandler = onDataCb;
+                      },
+                      data: function (data) {
+                        msgOptions.toGtw('dataToClient', {
+                          conversationId: askRes.conversationId,
+                          data,
+                        });
+                      },
+                    };
+
+                    argObj.handler(comms);
+                  }
                 },
                 function (error) {
                   rej(error);
