@@ -59,8 +59,9 @@ module.exports = function doCreator(msgOptions) {
             return res(answer);
           };
 
-          if (msgOptions.waitingHandlersByConvId[askRes.conversationId])
-            msgOptions.waitingHandlersByConvId[askRes.conversationId] = handlers;
+          // TODO: check why this was there
+          // if (msgOptions.waitingHandlersByConvId[askRes.conversationId])
+          msgOptions.waitingHandlersByConvId[askRes.conversationId] = handlers;
         },
         function (error) {
           rej(error);
