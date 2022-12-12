@@ -33,7 +33,7 @@ module.exports = function createMsgGateway(options) {
 
   var express = require('express');
   var app = express();
-  var expressWs = require('express-ws')(app);
+  var expressWs = require('express-ws')(app, undefined, { wsOptions: { maxPayload: 320000000 } });
 
   // var PORT = 3030
 

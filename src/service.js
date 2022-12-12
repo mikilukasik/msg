@@ -50,7 +50,10 @@ module.exports = function createMsgService(optionalOptions) {
     log: log,
     express: express,
     app: app,
-    ws: new WebSocketClient(),
+    ws: new WebSocketClient({
+      maxReceivedFrameSize: 40000000,
+      maxReceivedMessageSize: 320000000,
+    }),
     PORT: 5000,
     serviceName: 'msgService',
     serviceId: getRandomId(),
