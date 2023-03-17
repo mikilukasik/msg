@@ -1,4 +1,5 @@
 const getRandomId = require('./lib/getRandomId.js');
+var cors = require('cors');
 
 // set my public address to process.env.MSG_SLAVE_PUBLIC_ADDRESS
 module.exports = function createMsgGateway(options) {
@@ -33,6 +34,8 @@ module.exports = function createMsgGateway(options) {
 
   var express = require('express');
   var app = express();
+  app.use(cors());
+
   var expressWs = require('express-ws')(app, undefined, { wsOptions: { maxPayload: 320000000 } });
 
   // var PORT = 3030

@@ -1,4 +1,4 @@
-var request = require('request');
+var axios = require('axios');
 
 module.exports = function setRuleCreator(msgOptions) {
   var log = msgOptions.log || console.log;
@@ -22,20 +22,59 @@ module.exports = function setRuleCreator(msgOptions) {
         };
         msgOptions.app[rule.method.toLowerCase()](rule.inPath, function (req, res) {
           var useRule = getRoute().rule;
-          req
-            .pipe(
-              request(
-                {
-                  url: 'http://' + useRule.outHost + ':' + useRule.outPort + req.originalUrl,
-                  followRedirect: false,
-                  headers: req.headers,
-                },
-                function (e, response, body) {
-                  if (e) log('FATAL ERROR in pipe', e, Object.assign({}, rule, { ws: undefined }));
-                },
-              ),
-            )
-            .pipe(res);
+          // req
+          //   .pipe(
+          //     request(
+          //       {
+          //         url: 'http://' + useRule.outHost + ':' + useRule.outPort + req.originalUrl,
+          //         followRedirect: false,
+          //         headers: req.headers,
+          //       },
+          //       function (e, response, body) {
+          //         if (e) log('FATAL ERROR in pipe', e, Object.assign({}, rule, { ws: undefined }));
+          //       },
+          //     ),
+          //   )
+          //   .pipe(res);
+
+          // console.log(1111, rule.method);
+
+          axios(
+            {
+              url: 'http://' + useRule.outHost + ':' + useRule.outPort + req.originalUrl,
+
+              responseType: 'stream',
+              headers: req.headers,
+              maxRedirects: 0,
+              validateStatus: function (status) {
+                return status >= 200 && status < 400;
+              },
+            },
+            req,
+            {
+              headers: req.headers,
+            },
+          )
+            .then((response) => {
+              // console.log({ response });
+              response.data.pipe(res);
+            })
+            .catch(console.error);
+
+          // req
+          //   .pipe(
+          //     request(
+          //       {
+          //         url: 'http://' + useRule.outHost + ':' + useRule.outPort + req.originalUrl,
+          //         followRedirect: false,
+          //         headers: req.headers,
+          //       },
+          //       function (e, response, body) {
+          //         if (e) log('FATAL ERROR in pipe', e, Object.assign({}, rule, { ws: undefined }));
+          //       },
+          //     ),
+          //   )
+          //   .pipe(res);
         });
         break;
       case 'httpPrivate':

@@ -239,11 +239,11 @@ export const msgClient = (function createMsgService(optionalOptions) {
         var argObj = { cmd, data, handler };
 
         var handlers = {
-          dataHandler: function () {
-            msgOptions.log('in pure datahandler!!!!!llllss!!!!!!');
+          dataHandler: function (data) {
+            msgOptions.log('in pure datahandler!!!!!llllss!!!!!!', JSON.stringify({ data }, null, 2));
           },
           errorHandler: function (e) {
-            msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!');
+            msgOptions.log(e, 'in pure errorhandler!!!!!!!!!!!', JSON.stringify({ e }, null, 2));
           },
         };
 
